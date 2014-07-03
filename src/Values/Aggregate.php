@@ -2,142 +2,150 @@
 
 use Values\Exceptions\NotOverridableException;
 use Values\Index;
+use Values\TableGateway\TableGatewayFactoryInterface;
 
 class Aggregate
 {
 
+	protected $tableName = 'values_aggregate';
+
+	/**
+	 * Dependencies
+	 */
 	protected $queryBuilder;
 	protected $table;
 	protected $index;
-	protected $creatorFactory;
+	protected $tableGatewayFactory;
 
-	protected $values = [];
+	/**
+	 * Valeus from values_aggregate
+	 */
+	protected $id;
+	protected $name;
+	protected $pk;
+	protected $pkValue;
+	protected $cachedValue;
+
+	protected $values;
+
+
 	protected $pendingValues = [];
 
 	public function __construct(
 		QueryBuilderInterface $queryBuilder,
-		TableInterface $table,
-		$creatorFactory
+		EntityInterface $entity,
+		TableGatewayFactoryInterface $tableGatewayFactory
 	)
 	{
 		$this->queryBuilder = $queryBuilder;
-		$this->table = $table;
-		$this->creatorFactory = $creatorFactory;
+		$this->entity = $entity;
+		$this->tableGatewayFactory = $tableGatewayFactory;
 
-		$index = $this->queryBuilder->select(
-			$this->getIndexTableName(),
+		$this->loadOrCreate();
+
+	}
+
+	protected function loadOrCreate()
+	{
+		$index = $this->queryBuilder->findOne(
+			$this->tableName,
 			[
-				'table_name' => $this->table->getName(),
-				'table_pk_name' => $this->table->getPrimaryKeyName(),
-				'table_pk_value' => $this->table->getPrimaryKeyValue()
+				'name' => $this->entity->getName(),
+				'pk' => $this->entity->getPrimaryKeyName(),
+				'pk_value' => $this->entity->getPrimaryKeyValue()
 			]
 		);
-
-		$index = $index[0];
 
 		if (!$index) {
-			$index = $this->createIndex();
+			$index = $this->createNewRecord();
 		}
 
-		$this->index = new Index((array)$index);
+		$this->id           = $index->id;
+		$this->name         = $index->name;
+		$this->pk           = $index->pk;
+		$this->pkValue     = $index->pk_value;
+		$this->cachedValue = json_decode($index->cached_value);
+
+		$this->populateCachedValue();
 
 	}
 
-	protected function createIndex()
+	protected function populateCachedValue()
 	{
-		$index = $this->queryBuilder->insert(
-			$this->getIndexTableName(),
+		if (!$this->cachedValue) {
+			$this->values = [];
+			return;
+		}
+
+		foreach ($this->cachedValue as $key=>$value) {
+			$this->values[$value->key] = new Value($value);
+		}
+
+	}
+
+	protected function createNewRecord()
+	{
+		$index = $this->queryBuilder->findOne(
+			$this->tableName,
 			[
-				'table_name' => $this->table->getName(),
-				'table_pk_name' => $this->table->getPrimaryKeyName(),
-				'table_pk_value' => $this->table->getPrimaryKeyValue()
+				'name' => $this->table->getName(),
+				'pk' => $this->table->getPrimaryKeyName(),
+				'pk_value' => $this->table->getPrimaryKeyValue()
 			]
 		);
 
-		$index = $this->queryBuilder->select($table, ['id'=>$index]);
-		return $index[0];
+		$index = $this->queryBuilder->findOne($table, ['id'=>$index]);
+		return $index;
 	}
 
-	protected function getIndexTableName()
-	{
-		return 'values_index';
-	}
-
-	protected function hasKey($key)
-	{
-		return array_key_exists($key, $this->values);
-	}
-
-	protected function getValueType($value)
-	{
-
-		if (is_numeric($value) && floor($value) != $value) {
-			return 'Decimal';
-		}
-
-		if (is_float($value)) {
-			return 'Float';
-		}
-
-		if (is_int($value)) {
-			return 'Int';
-		}
-
-		if (strlen($value) >= 255) {
-			return 'Text';
-		}
-
-		if (is_string($value)) {
-			return 'Varchar';
-		}
-
-		throw new Exceptions\UnknownValueTypeException("Can't determine a value type for " . $value);
-	}
-
-	protected function addPendingValue($key, $value, $type = null, $action)
+	protected function addPendingValue($key, $value, $type = null, $id = null)
 	{
 		if (!$type) {
-			$type = $this->getValueType($value);
+			$type = Helper::getDataType($value);
 		}
 
 		$this->pendingValues[$key] = [
 			'key'    => $key,
 			'value'  => $value,
 			'type'   => $type,
-			'action' => $action
+			'id'     => $id
 		];
 	}
 
-	protected function overrideOrInsertExistingValue($key, $value)
+	protected function update($key, $value, $type = null, $id = null)
 	{
-		$this->values[$key] = $value;
-	}
-
-	public function update($key, $value, $type = null)
-	{
-		if (!$this->hasKey($key, $value)) {
+		if (!$this->has($key, $value)) {
 			throw new KeyNotFoundException($key . ' doesn\'t exist. Please use set($key, $value, $type) to create it');
 		}
 
-		$this->addPendingValue($key, $value, $type, 'Update');
+		$this->addPendingValue($key, $value, $type, $id);
 	}
 
 	public function set($key, $value, $type = null)
 	{
-		if ($this->hasKey($key)) {
-			throw new NotOverridableException($key . ' exists. Please use update($key, $value, $valueType) method');
+		if ($this->has($key)) {
+			$this->update($key, $value, $type, $this->get($key, true)->id);
+		} else {
+			$this->addPendingValue($key, $value, $type);
 		}
-
-		$this->addPendingValue($key, $value, $type, 'Insert');
 	}
 
-	public function get($key)
+	public function has($key)
 	{
-		if (!$this->hasKey($key)) {
+		return array_key_exists($key, $this->values);
+	}
+
+	public function get($key, $returnObject = false)
+	{
+		if (!$this->has($key)) {
 			throw new KeyNotFoundException($key . ' doesn\'t exist. Please use set($key, $value, $type) to create it');
 		}
 
-		return $this->values[$key];
+		if ($returnObject) {
+			return $this->values[$key];
+		}
+
+		return $this->values[$key]->value;
 	}
 
 	function persist()
@@ -147,17 +155,19 @@ class Aggregate
 
 			foreach ($this->pendingValues as $pendingValue) {
 
-				$creator = $this->creatorFactory->create(
+				$creator = $this->tableGatewayFactory->create(
 					$pendingValue['type'],
 					$this->queryBuilder,
-					$this->index,
+					$this->pkValue,
 					$pendingValue['key'],
-					$pendingValue['value']
+					$pendingValue['value'],
+					$pendingValue['id']
 				);
 
-				$result = $creator->create();
-
+				$result = $creator->createOrUpdate();
 			}
+
+			$this->rebuild();
 
 		} catch (\Exception $e) {
 			// $this->queryBuilder->rollback();
@@ -168,6 +178,37 @@ class Aggregate
 
 	}
 
+	protected function rebuild()
+	{
+		$decimal = $this->queryBuilder->select('values_decimal', ['index_id'=>$this->id]);
+		$int = $this->queryBuilder->select('values_int', ['index_id'=>$this->id]);
+		$text = $this->queryBuilder->select('values_text', ['index_id'=>$this->id]);
+		$varchar = $this->queryBuilder->select('values_varchar', ['index_id'=>$this->id]);
+
+		if (!is_array($decimal)) $decimal = [];
+		if (!is_array($int)) $int = [];
+		if (!is_array($text)) $text = [];
+		if (!is_array($varchar)) $varchar = [];
+
+		$values = array_merge($decimal, $int, $text, $varchar);
+
+		$index = new \stdClass;
+
+		foreach ($values as $value) {
+			$key = $value->key;
+			$index->$key = new \stdClass;
+			$index->$key->index_id = $value->index_id;
+			$index->$key->key = $key;
+			$index->$key->value = $value->value;
+			$index->$key->id = $value->id;
+		}
+
+		$this->value = $index;
+		$this->populateCachedValue();
+
+		$this->queryBuilder->update($this->tableName, ['cached_value'=>json_encode($index)], $this->pkValue);
+
+	}
 
 
 }

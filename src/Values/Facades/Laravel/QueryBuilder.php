@@ -24,4 +24,20 @@ class QueryBuilder implements QueryBuilderInterface
 		$record = \DB::table($table)->insertGetId($values);
 		return $record;
 	}
+
+	public function findOne($table, $wheres)
+	{
+		$record = $this->select($table, $wheres);
+		if (count($record)) {
+			return $record[0];
+		}
+
+		return $record;
+	}
+
+	public function update($table, $values, $id)
+	{
+		$record = \DB::table($table)->where('id',$id)->update($values);
+		return $record;
+	}
 }

@@ -3,16 +3,15 @@
 class Value
 {
 	public $id;
-	public $parentId;
-	public $type;
+	public $indexId;
+	public $key;
 	public $value;
 
 	public function __construct($values)
 	{
-		foreach ($values as $key=>$value) {
-			if (isset($this->$key)) {
-				$this->key = $value;
-			}
-		}
+		$this->id = $values->id;
+		$this->indexId = $values->index_id;
+		$this->key = $values->key;
+		$this->value = $values->value;
 	}
 }

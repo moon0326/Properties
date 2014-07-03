@@ -10,7 +10,7 @@ class Value
 		return new \Values\Aggregate(
 			$queryBuilder,
 			$table,
-			new \Values\Creator\Factory()
+			new \Values\TableGateway\TableGatewayFactory()
 		);
 	}
 
