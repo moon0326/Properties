@@ -6,31 +6,59 @@ use stdClass;
 
 class Aggregate
 {
-
+	/**
+	 * @var string name of the aggregate table
+	 */
 	protected $tableName = 'values_aggregate';
 
 	/**
-	 * Dependencies
+	 * @var Values\QueryBuilderInterface
 	 */
 	protected $queryBuilder;
-	protected $table;
-	protected $index;
+
+	/**
+	 * @var Values\EntityInterface
+	 */
+	protected $entity;
+
+	/**
+	 * @var Values\TableGateway\TableGatewayFactoryInterface
+	 */
 	protected $tableGatewayFactory;
 
 	/**
-	 * Valeus from values_aggregate
+	 * @var int
 	 */
 	protected $id;
+
+	/**
+	 * @var string
+	 */
 	protected $name;
+
+	/**
+	 * @var string
+	 */
 	protected $pk;
+
+	/**
+	 * @var int
+	 */
 	protected $pkValue;
+
+	/**
+	 * @var string json encoded values
+	 */
 	protected $cachedValue;
 
 	/**
-	 * Popuplated value from the cache
+	 * @var Array popuplatd values from $cachedValue
 	 */
 	protected $values;
 
+	/**
+	 * @var Array
+	 */
 	protected $pendingValues = [];
 
 	public function __construct(
@@ -47,6 +75,11 @@ class Aggregate
 
 	}
 
+	/**
+	 * Create a new row in $tableName
+	 * or loads an existing row
+	 * @return Void
+	 */
 	protected function loadOrCreate()
 	{
 		$index = $this->queryBuilder->findOne(
@@ -69,9 +102,12 @@ class Aggregate
 		$this->cachedValue = json_decode($index->cached_value);
 
 		$this->populateCachedValue();
-
 	}
 
+	/**
+	 * Decode cached json and generate Value objects from it
+	 * @return Void
+	 */
 	protected function populateCachedValue()
 	{
 		if (!$this->cachedValue) {
@@ -82,7 +118,6 @@ class Aggregate
 		foreach ($this->cachedValue as $key=>$value) {
 			$this->values[$value->key] = new Value($value);
 		}
-
 	}
 
 	protected function createNewRecord()
@@ -100,6 +135,11 @@ class Aggregate
 		return $index;
 	}
 
+	/**
+	 * Add a temporary Value object to the pendingValues stack
+	 * Determins a data type for the given value if not given
+	 * @return Void
+	 */
 	protected function addPendingValue($key, $value, $type = null, $id = null)
 	{
 		if (!$type) {
@@ -116,6 +156,10 @@ class Aggregate
 		$this->pendingValues[$key] = new Value($values);
 	}
 
+	/**
+	 * Updates an exsiting value by its key
+	 * @return  Void
+	 */
 	protected function update($key, $value, $type = null, $id = null)
 	{
 		if (!$this->has($key, $value)) {
@@ -125,6 +169,10 @@ class Aggregate
 		$this->addPendingValue($key, $value, $type, $id);
 	}
 
+	/**
+	 * Sets a new key/value pair or updates an existing row
+	 * @return Boolean
+	 */
 	public function set($key, $value, $type = null)
 	{
 		if ($this->has($key)) {
@@ -132,13 +180,25 @@ class Aggregate
 		} else {
 			$this->addPendingValue($key, $value, $type);
 		}
+
+		return true;
 	}
 
+	/**
+	 * See if a key exists
+	 * @return Boolean
+	 */
 	public function has($key)
 	{
 		return array_key_exists($key, $this->values);
 	}
 
+	/**
+	 * Return a value by its key
+	 * @param  string  $key
+	 * @param  boolean $returnObject
+	 * @return Value|mixed if @returnObject is set, a Value object is returned
+	 */
 	public function get($key, $returnObject = false)
 	{
 		if (!$this->has($key)) {
@@ -152,6 +212,10 @@ class Aggregate
 		return $this->values[$key]->value;
 	}
 
+	/**
+	 * Insert/Update any existing pending Value objects
+	 * @return Boolean
+	 */
 	function persist()
 	{
 		$this->queryBuilder->beginTransaction();
@@ -177,10 +241,15 @@ class Aggregate
 			throw $e;
 		}
 
+		$this->pendingValues = [];
+
 		return true;
 
 	}
 
+	/**
+	 * Rebuild a cached_value value
+	 */
 	protected function rebuild()
 	{
 		$decimal = $this->queryBuilder->select('values_decimal', ['index_id'=>$this->id]);
@@ -212,6 +281,4 @@ class Aggregate
 		$this->queryBuilder->update($this->tableName, ['cached_value'=>json_encode($index)], $this->pkValue);
 
 	}
-
-
 }
