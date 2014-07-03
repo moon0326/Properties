@@ -1,8 +1,8 @@
 <?php namespace Values;
 
-use Values\Exceptions\NotOverridableException;
-use Values\Index;
+use Values\Exceptions\KeyNotFoundException;
 use Values\TableGateway\TableGatewayFactoryInterface;
+use stdClass;
 
 class Aggregate
 {
@@ -106,12 +106,14 @@ class Aggregate
 			$type = Helper::getDataType($value);
 		}
 
-		$this->pendingValues[$key] = [
-			'key'    => $key,
-			'value'  => $value,
-			'type'   => $type,
-			'id'     => $id
-		];
+		$values = new stdClass;
+		$values->key = $key;
+		$values->value = $value;
+		$values->type = $type;
+		$values->id = $id;
+		$values->index_id = $this->pkValue;
+
+		$this->pendingValues[$key] = new Value($values);
 	}
 
 	protected function update($key, $value, $type = null, $id = null)
@@ -159,12 +161,9 @@ class Aggregate
 			foreach ($this->pendingValues as $pendingValue) {
 
 				$creator = $this->tableGatewayFactory->create(
-					$pendingValue['type'],
 					$this->queryBuilder,
 					$this->pkValue,
-					$pendingValue['key'],
-					$pendingValue['value'],
-					$pendingValue['id']
+					$pendingValue
 				);
 
 				$result = $creator->createOrUpdate();

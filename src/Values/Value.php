@@ -6,6 +6,7 @@ class Value
 	public $indexId;
 	public $key;
 	public $value;
+	public $type;
 
 	public function __construct($values)
 	{
@@ -13,5 +14,9 @@ class Value
 		$this->indexId = $values->index_id;
 		$this->key = $values->key;
 		$this->value = $values->value;
+
+		if (isset($values->type)) {
+			$this->type = $values->type;
+		}
 	}
 }

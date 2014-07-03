@@ -2,32 +2,29 @@
 
 use Values\QueryBuilderInterface;
 use Values\IndexInterface;
+use Values\Value;
 
 abstract class AbstractTableGateway implements TableGatewayInterface
 {
 	protected $queryBuilder;
 	protected $indexId;
-	protected $key;
 	protected $value;
-	protected $id;
 
 	abstract protected function getTableName();
 
-	public function __construct(QueryBuilderInterface $queryBuilder, $indexId, $key, $value, $id = null)
+	public function __construct(QueryBuilderInterface $queryBuilder, $indexId, Value $value)
 	{
 		$this->queryBuilder = $queryBuilder;
 		$this->indexId = $indexId;
-		$this->key = $key;
 		$this->value = $value;
-		$this->id = $id;
 	}
 
 	public function create()
 	{
 		$result = $this->queryBuilder->insert($this->getTableName(),[
 			'index_id' => $this->indexId,
-			'key'      => $this->key,
-			'value'    => $this->value
+			'key'      => $this->value->key,
+			'value'    => $this->value->value
 		]);
 
 		return $result;
@@ -35,7 +32,7 @@ abstract class AbstractTableGateway implements TableGatewayInterface
 
 	public function createOrUpdate()
 	{
-		if ($this->id) {
+		if ($this->value->id) {
 			return $this->update();
 		}
 
@@ -45,9 +42,9 @@ abstract class AbstractTableGateway implements TableGatewayInterface
 	public function update()
 	{
 		$result = $this->queryBuilder->update($this->getTableName(),[
-			'key'      => $this->key,
-			'value'    => $this->value
-		], $this->id);
+			'key'      => $this->value->key,
+			'value'    => $this->value->value
+		], $this->value->id);
 
 		return $result;
 	}

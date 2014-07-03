@@ -2,8 +2,9 @@
 
 use Values\QueryBuilderInterface;
 use Values\IndexInterface;
+use Values\Value;
 
 interface TableGatewayFactoryInterface
 {
-	public function create($type, QueryBuilderInterface $queryBuilder, $indexId, $key, $value, $id = null);
+	public function create(QueryBuilderInterface $queryBuilder, $indexId, Value $value);
 }
