@@ -2,6 +2,8 @@
 
 use Values\QueryBuilderInterface;
 
+use \DB as DB;
+
 class QueryBuilder implements QueryBuilderInterface
 {
 	public function select($table, $wheres = [])
@@ -40,4 +42,20 @@ class QueryBuilder implements QueryBuilderInterface
 		$record = \DB::table($table)->where('id',$id)->update($values);
 		return $record;
 	}
+
+	public function beginTransaction()
+	{
+		DB::beginTransaction();
+	}
+
+	public function rollback()
+	{
+		DB::rollback();
+	}
+
+	public function commit()
+	{
+		DB::commit();
+	}
+
 }

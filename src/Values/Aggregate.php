@@ -26,8 +26,10 @@ class Aggregate
 	protected $pkValue;
 	protected $cachedValue;
 
+	/**
+	 * Popuplated value from the cache
+	 */
 	protected $values;
-
 
 	protected $pendingValues = [];
 
@@ -150,7 +152,8 @@ class Aggregate
 
 	function persist()
 	{
-		// $this->queryBuilder->beginTransaction();
+		$this->queryBuilder->beginTransaction();
+
 		try {
 
 			foreach ($this->pendingValues as $pendingValue) {
@@ -167,10 +170,11 @@ class Aggregate
 				$result = $creator->createOrUpdate();
 			}
 
+			$this->queryBuilder->commit();
 			$this->rebuild();
 
 		} catch (\Exception $e) {
-			// $this->queryBuilder->rollback();
+			$this->queryBuilder->rollback();
 			throw $e;
 		}
 
