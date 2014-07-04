@@ -1,12 +1,12 @@
-<?php namespace Values\Facades\Laravel;
+<?php namespace Properties\Facades\Laravel;
 
-use Values\QueryBuilderInterface;
+use Properties\QueryBuilderInterface;
 
 use \DB as DB;
 
 class QueryBuilder implements QueryBuilderInterface
 {
-	public function select($table, $wheres = [])
+	public function select($table, array $wheres = [])
 	{
 		$builder = \DB::table($table);
 		foreach ($wheres as $key=>$value) {
@@ -21,23 +21,24 @@ class QueryBuilder implements QueryBuilderInterface
 		return $record;
 	}
 
-	public function insert($table, $values)
+	public function insert($table, array $values)
 	{
 		$record = \DB::table($table)->insertGetId($values);
 		return $record;
 	}
 
-	public function findOne($table, $wheres)
+	public function selectFirst($table, array $wheres)
 	{
 		$record = $this->select($table, $wheres);
-		if (count($record)) {
+
+		if ($record) {
 			return $record[0];
 		}
 
 		return $record;
 	}
 
-	public function update($table, $values, $id)
+	public function update($table, array $values, $id)
 	{
 		$record = \DB::table($table)->where('id',$id)->update($values);
 		return $record;

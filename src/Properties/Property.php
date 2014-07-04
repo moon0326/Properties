@@ -1,6 +1,6 @@
-<?php namespace Values;
+<?php namespace Properties;
 
-class Value
+class Property
 {
 	public $id;
 	public $indexId;
@@ -17,6 +17,10 @@ class Value
 
 		if (isset($values->type)) {
 			$this->type = $values->type;
+		}
+
+		if ($this->type === 'Php') {
+			$this->value = unserialize($values->value);
 		}
 	}
 }

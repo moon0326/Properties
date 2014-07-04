@@ -1,4 +1,4 @@
-<?php namespace Values\TableGateway;
+<?php namespace Properties\TableGateway;
 
 class Varchar extends AbstractTableGateway
 {

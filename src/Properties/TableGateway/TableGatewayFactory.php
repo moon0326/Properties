@@ -1,12 +1,12 @@
-<?php namespace Values\TableGateway;
+<?php namespace Properties\TableGateway;
 
-use Values\QueryBuilderInterface;
-use Values\IndexInterface;
-use Values\Value;
+use Properties\QueryBuilderInterface;
+use Properties\IndexInterface;
+use Properties\Value;
 
 class TableGatewayFactory implements TableGatewayFactoryInterface
 {
-	protected $basePath = "Values\\TableGateway\\";
+	protected $basePath = "Properties\\TableGateway\\";
 
 	public function create(QueryBuilderInterface $queryBuilder, $type)
 	{
