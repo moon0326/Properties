@@ -1,9 +1,9 @@
 <?php namespace Values\TableGateway;
 
-class Int extends AbstractTableGateway
+class Integer extends AbstractTableGateway
 {
 	protected function getTableName()
 	{
-		return 'values_int';
+		return 'values_integer';
 	}
 }

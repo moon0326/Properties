@@ -6,9 +6,17 @@ use Values\Value;
 
 class TableGatewayFactory implements TableGatewayFactoryInterface
 {
-	public function create(QueryBuilderInterface $queryBuilder, $indexId, Value $value)
+	protected $basePath = "Values\\TableGateway\\";
+
+	public function create(QueryBuilderInterface $queryBuilder, $type)
 	{
-		$classPath = "Values\\TableGateway\\" . $value->type;
-		return new $classPath($queryBuilder, $indexId, $value);
+		$classPath = $this->basePath . $type;
+		return new $classPath($queryBuilder);
+	}
+
+	function createByType(QueryBuilderInterface $queryBuilder)
+	{
+		$classPath = $this->basePath . $type;
+		return new $classPath;
 	}
 }

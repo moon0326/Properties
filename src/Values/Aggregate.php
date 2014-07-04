@@ -223,14 +223,8 @@ class Aggregate
 		try {
 
 			foreach ($this->pendingValues as $pendingValue) {
-
-				$creator = $this->tableGatewayFactory->create(
-					$this->queryBuilder,
-					$this->pkValue,
-					$pendingValue
-				);
-
-				$result = $creator->createOrUpdate();
+				$creator = $this->tableGatewayFactory->create($this->queryBuilder, $pendingValue->type);
+				$result = $creator->createOrUpdate($pendingValue);
 			}
 
 			$this->queryBuilder->commit();
@@ -244,7 +238,6 @@ class Aggregate
 		$this->pendingValues = [];
 
 		return true;
-
 	}
 
 	/**
@@ -252,23 +245,20 @@ class Aggregate
 	 */
 	protected function rebuild()
 	{
-		$decimal = $this->queryBuilder->select('values_decimal', ['index_id'=>$this->id]);
-		$int = $this->queryBuilder->select('values_int', ['index_id'=>$this->id]);
-		$text = $this->queryBuilder->select('values_text', ['index_id'=>$this->id]);
-		$varchar = $this->queryBuilder->select('values_varchar', ['index_id'=>$this->id]);
+		$types = ['Decimal', 'Integer', 'Text', 'Varchar'];
 
-		if (!is_array($decimal)) $decimal = [];
-		if (!is_array($int)) $int = [];
-		if (!is_array($text)) $text = [];
-		if (!is_array($varchar)) $varchar = [];
+		foreach ($types as $type) {
+			$tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $type);
+			$values[] = $tableGateway->findByIndexId($this->id);
+		}
 
-		$values = array_merge($decimal, $int, $text, $varchar);
+		$values = array_merge($values[0], $values[1], $values[2], $values[3]);
 
-		$index = new \stdClass;
+		$index = new stdClass;
 
 		foreach ($values as $value) {
 			$key = $value->key;
-			$index->$key = new \stdClass;
+			$index->$key = new stdClass;
 			$index->$key->index_id = $value->index_id;
 			$index->$key->key = $key;
 			$index->$key->value = $value->value;

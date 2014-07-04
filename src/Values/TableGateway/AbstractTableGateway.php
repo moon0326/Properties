@@ -7,45 +7,53 @@ use Values\Value;
 abstract class AbstractTableGateway implements TableGatewayInterface
 {
 	protected $queryBuilder;
-	protected $indexId;
-	protected $value;
 
 	abstract protected function getTableName();
 
-	public function __construct(QueryBuilderInterface $queryBuilder, $indexId, Value $value)
+	public function __construct(QueryBuilderInterface $queryBuilder)
 	{
 		$this->queryBuilder = $queryBuilder;
-		$this->indexId = $indexId;
-		$this->value = $value;
 	}
 
-	public function create()
+	public function create(Value $value)
 	{
 		$result = $this->queryBuilder->insert($this->getTableName(),[
-			'index_id' => $this->indexId,
-			'key'      => $this->value->key,
-			'value'    => $this->value->value
+			'index_id' => $value->index_id,
+			'key'      => $value->key,
+			'value'    => $value->value
 		]);
 
 		return $result;
 	}
 
-	public function createOrUpdate()
+	public function createOrUpdate(Value $value)
 	{
-		if ($this->value->id) {
-			return $this->update();
+		if ($value->id) {
+			return $this->update($value);
 		}
 
-		return $this->create();
+		return $this->create($value);
 	}
 
-	public function update()
+	public function update(Value $value)
 	{
 		$result = $this->queryBuilder->update($this->getTableName(),[
-			'key'      => $this->value->key,
-			'value'    => $this->value->value
-		], $this->value->id);
+			'key'      => $value->key,
+			'value'    => $value->value
+		], $value->id);
 
 		return $result;
 	}
+
+	function findByIndexId($indexId)
+	{
+		$result = $this->queryBuilder->select($this->getTableName(), ['index_id'=>$indexId]);
+
+		if (!is_array($result)) {
+			return [];
+		}
+
+		return $result;
+	}
+
 }

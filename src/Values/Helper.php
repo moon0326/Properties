@@ -5,25 +5,18 @@ class Helper
 
 	public static function getDataType($value)
 	{
-		if (is_numeric($value) && floor($value) != $value) {
-			return 'Decimal';
+
+		$type = gettype($value);
+
+		if ($type === 'string') {
+			$type = 'varchar';
 		}
 
-		if (is_float($value)) {
-			return 'Float';
+		if ($type === 'varchar' && strlen($value) >= 255) {
+			$type = 'text';
 		}
 
-		if (is_int($value)) {
-			return 'Int';
-		}
-
-		if (strlen($value) >= 255) {
-			return 'Text';
-		}
-
-		if (is_string($value)) {
-			return 'Varchar';
-		}
+		return ucfirst($type);
 
 		throw new Exceptions\UnknownValueTypeException("Can't determine a value type for " . $value);
 	}

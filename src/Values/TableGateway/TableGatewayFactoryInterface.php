@@ -6,5 +6,5 @@ use Values\Value;
 
 interface TableGatewayFactoryInterface
 {
-	public function create(QueryBuilderInterface $queryBuilder, $indexId, Value $value);
+	public function create(QueryBuilderInterface $queryBuilder, $type);
 }
