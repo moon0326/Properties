@@ -1,12 +1,20 @@
 {
-    "name": "moon/values",
+    "name": "moon/properties",
     "authors": [
         {
             "name": "Moon",
             "email": "kmk1986@gmail.com"
         }
     ],
+    "require-dev": {
+        "mockery/mockery": "dev-master"
+    },
     "require": {
 
+    },
+    "autoload": {
+    	"psr-0": {
+    		"Moon\\Properties": "src/"
+    	}
     }
 }

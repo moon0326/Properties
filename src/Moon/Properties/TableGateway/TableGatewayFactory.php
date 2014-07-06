@@ -1,12 +1,12 @@
-<?php namespace Properties\TableGateway;
+<?php namespace Moon\Properties\TableGateway;
 
-use Properties\QueryBuilderInterface;
-use Properties\IndexInterface;
-use Properties\Value;
+use Moon\Properties\QueryBuilderInterface;
+use Moon\Properties\IndexInterface;
+use Moon\Properties\Value;
 
 class TableGatewayFactory implements TableGatewayFactoryInterface
 {
-	protected $basePath = "Properties\\TableGateway\\";
+	protected $basePath = "Moon\Properties\\TableGateway\\";
 
 	public function create(QueryBuilderInterface $queryBuilder, $type)
 	{

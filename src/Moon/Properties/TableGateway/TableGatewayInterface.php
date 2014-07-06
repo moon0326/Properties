@@ -1,6 +1,6 @@
-<?php namespace Properties\TableGateway;
+<?php namespace Moon\Properties\TableGateway;
 
-use Properties\Property;
+use Moon\Properties\Property;
 
 interface TableGatewayInterface
 {

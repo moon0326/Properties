@@ -1,4 +1,4 @@
-<?php namespace Properties\TableGateway;
+<?php namespace Moon\Properties\TableGateway;
 
 class Varchar extends AbstractTableGateway
 {

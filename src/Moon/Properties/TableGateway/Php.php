@@ -1,6 +1,6 @@
-<?php namespace Properties\TableGateway;
+<?php namespace Moon\Properties\TableGateway;
 
-use Properties\Property;
+use Moon\Properties\Property;
 
 class Php extends AbstractTableGateway
 {
@@ -12,11 +12,6 @@ class Php extends AbstractTableGateway
 	public function createOrUpdate(Property $value)
 	{
 		$value->value = serialize($value->value);
-
-		if ($value->id) {
-			return $this->update($value);
-		}
-
-		return $this->create($value);
+		parent::createOrUpdate($value);
 	}
 }

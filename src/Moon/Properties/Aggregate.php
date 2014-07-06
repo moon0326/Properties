@@ -1,7 +1,7 @@
-<?php namespace Properties;
+<?php namespace Moon\Properties;
 
-use Properties\Exceptions\KeyNotFoundException;
-use Properties\TableGateway\TableGatewayFactoryInterface;
+use Moon\Properties\Exceptions\KeyNotFoundException;
+use Moon\Properties\TableGateway\TableGatewayFactoryInterface;
 use stdClass;
 
 class Aggregate
@@ -95,11 +95,11 @@ class Aggregate
             $index = $this->createNewRecord();
         }
 
-		$this->id          = $index->id;
-		$this->name        = $index->name;
-		$this->pk          = $index->pk;
-		$this->pkValue     = $index->pk_value;
-		$this->cachedValue = json_decode($index->cached_value);
+        $this->id          = $index->id;
+        $this->name        = $index->name;
+        $this->pk          = $index->pk;
+        $this->pkValue     = $index->pk_value;
+        $this->cachedValue = json_decode($index->cached_value);
 
         $this->populateCachedValue();
     }
@@ -123,16 +123,16 @@ class Aggregate
 
     protected function createNewRecord()
     {
-        $index = $this->queryBuilder->selectFirst(
+        $index = $this->queryBuilder->insert(
             $this->tableName,
             [
-                'name' => $this->table->getName(),
-                'pk' => $this->table->getIdentifierName(),
-                'pk_value' => $this->table->getIdentifier()
+                'name' => $this->entity->getName(),
+                'pk' => $this->entity->getIdentifierName(),
+                'pk_value' => $this->entity->getIdentifier()
             ]
         );
 
-        $index = $this->queryBuilder->selectFirst($table, ['id'=>$index]);
+        $index = $this->queryBuilder->selectFirst($this->tableName, ['id'=>$index]);
 
         return $index;
     }
@@ -167,7 +167,7 @@ class Aggregate
         $values->value = $value;
         $values->type = $type;
         $values->id = $id;
-        $values->index_id = $this->pkValue;
+        $values->index_id = $this->id;
 
         $this->pendingValues[$key] = new Property($values);
     }
@@ -228,6 +228,25 @@ class Aggregate
         return $this->values[$key]->value;
     }
 
+    public function all()
+    {
+        return $this->values;
+    }
+
+    public function getPendingProperties()
+    {
+        return $this->pendingValues;
+    }
+
+    /**
+     * Returns a list of keys
+     * @return  Array
+     */
+    public function keys()
+    {
+        return array_keys($this->values);
+    }
+
     /**
      * Insert/Update any existing pending Value objects
      * @return Boolean
@@ -273,19 +292,17 @@ class Aggregate
         $index = new stdClass;
 
         foreach ($values as $value) {
-            $key = $value->key;
-            $index->$key = new stdClass;
-            $index->$key->index_id = $value->index_id;
-            $index->$key->key = $key;
-            $index->$key->value = $value->value;
-            $index->$key->id = $value->id;
-            $index->$key->type = $value->type;
+            $index->{$value->key} = new Property($value);
         }
 
         $this->value = $index;
         $this->populateCachedValue();
 
-        $this->queryBuilder->update($this->tableName, ['cached_value'=>json_encode($index)], $this->pkValue);
+        $this->queryBuilder->update(
+            $this->tableName,
+            ['cached_value'=>json_encode($index)],
+            $this->id
+        );
 
     }
 }

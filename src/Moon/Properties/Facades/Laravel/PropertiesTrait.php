@@ -1,8 +1,8 @@
-<?php namespace Properties\Facades\Laravel;
+<?php namespace Moon\Properties\Facades\Laravel;
 
-use Properties\Facades\Laravel\QueryBuilder;
-use Properties\Aggregate;
-use Properties\TableGateway\TableGatewayFactory;
+use Moon\Properties\Facades\Laravel\QueryBuilder;
+use Moon\Properties\Aggregate;
+use Moon\Properties\TableGateway\TableGatewayFactory;
 
 trait PropertiesTrait
 {

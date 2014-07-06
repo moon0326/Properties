@@ -1,6 +1,6 @@
-<?php namespace Properties\Facades\Laravel;
+<?php namespace Moon\Properties\Facades\Laravel;
 
-use Properties\QueryBuilderInterface;
+use Moon\Properties\QueryBuilderInterface;
 
 use \DB as DB;
 
