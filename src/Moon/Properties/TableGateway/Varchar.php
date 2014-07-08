@@ -4,6 +4,6 @@ class Varchar extends AbstractTableGateway
 {
 	protected function getTableName()
 	{
-		return 'values_varchar';
+		return 'properties_varchar';
 	}
 }

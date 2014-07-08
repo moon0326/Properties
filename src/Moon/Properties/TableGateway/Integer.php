@@ -4,6 +4,6 @@ class Integer extends AbstractTableGateway
 {
 	protected function getTableName()
 	{
-		return 'values_integer';
+		return 'properties_integer';
 	}
 }

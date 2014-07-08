@@ -6,7 +6,7 @@ class Php extends AbstractTableGateway
 {
 	protected function getTableName()
 	{
-		return 'values_text';
+		return 'properties_text';
 	}
 
 	public function createOrUpdate(Property $value)

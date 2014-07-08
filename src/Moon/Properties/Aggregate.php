@@ -9,7 +9,7 @@ class Aggregate
     /**
      * @var string name of the aggregate table
      */
-    protected $tableName = 'values_aggregate';
+    protected $tableName = 'properties_aggregate';
 
     /**
      * @var Values\QueryBuilderInterface
@@ -100,7 +100,6 @@ class Aggregate
         $this->pk          = $index->pk;
         $this->pkValue     = $index->pk_value;
         $this->cachedValue = json_decode($index->cached_value);
-
         $this->populateCachedValue();
     }
 
@@ -137,29 +136,34 @@ class Aggregate
         return $index;
     }
 
+    protected function getDataType($value)
+    {
+        $type = gettype($value);
+
+        if ($type === 'string') {
+            $type = 'varchar';
+        }
+
+        if ($type === 'varchar' && strlen($value) >= 255) {
+            $type = 'text';
+        }
+
+        if ($type === 'array' || $type === 'object') {
+            $type = 'php';
+        }
+
+        return ucfirst($type) ;
+    }
+
     /**
      * Add a temporary Value object to the pendingValues stack
      * Determins a data type for the given value if not given
      * @return Void
      */
-    protected function addPendingValue($key, $value, $type = null, $id = null)
+    protected function addPendingValue($key, $value, $type = null, $operation, $id = null)
     {
         if (!$type) {
-            $type = gettype($value);
-
-            if ($type === 'string') {
-                $type = 'varchar';
-            }
-
-            if ($type === 'varchar' && strlen($value) >= 255) {
-                $type = 'text';
-            }
-
-            if ($type === 'array' || $type === 'object') {
-                $type = 'php';
-            }
-
-            $type = ucfirst($type);
+            $type = $this->getDataType($value);
         }
 
         $values = new stdClass;
@@ -169,20 +173,20 @@ class Aggregate
         $values->id = $id;
         $values->index_id = $this->id;
 
-        $this->pendingValues[$key] = new Property($values);
+        $this->pendingValues[$key] = [$operation, new Property($values)];
     }
 
     /**
      * Updates an exsiting value by its key
      * @return Void
      */
-    protected function update($key, $value, $type = null, $id = null)
+    protected function update($key, $value, $type = null, $operation, $id = null)
     {
         if (!$this->has($key, $value)) {
             throw new KeyNotFoundException($key . ' doesn\'t exist. Please use set($key, $value, $type) to create it');
         }
 
-        $this->addPendingValue($key, $value, $type, $id);
+        $this->addPendingValue($key, $value, $type, $operation, $id);
     }
 
     /**
@@ -192,12 +196,24 @@ class Aggregate
     public function set($key, $value, $type = null)
     {
         if ($this->has($key)) {
-            $this->update($key, $value, $type, $this->get($key, true)->id);
+            $this->update($key, $value, $type, 'update', $this->get($key, true)->id);
         } else {
-            $this->addPendingValue($key, $value, $type);
+            $this->addPendingValue($key, $value, $type, 'create');
         }
 
         return true;
+    }
+
+    public function delete($key)
+    {
+        if (!$this->has($key)) {
+            throw new KeyNotFoundException($key . ' doesn\'t exist. You can\'t delete it');
+        }
+
+        $property = $this->get($key, true);
+        $property->type = $this->getDataType($property->value);
+
+        $this->pendingValues[$key] = ['delete', $property];
     }
 
     /**
@@ -253,13 +269,24 @@ class Aggregate
      */
     public function save()
     {
-        $this->queryBuilder->beginTransaction();
 
         try {
 
             foreach ($this->pendingValues as $pendingValue) {
-                $creator = $this->tableGatewayFactory->create($this->queryBuilder, $pendingValue->type);
-                $result = $creator->createOrUpdate($pendingValue);
+
+                $operation = $pendingValue[0];
+                $property = $pendingValue[1];
+                $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $property->type);
+
+                switch ($operation) {
+                    case 'update':
+                    case 'create':
+                        $result = $tableGateway->createOrUpdate($property);
+                        break;
+                    case 'delete':
+                        $result = $tableGateway->delete($property);
+                        break;
+                }
             }
 
             $this->queryBuilder->commit();
@@ -289,13 +316,18 @@ class Aggregate
 
         $values = array_merge($values[0], $values[1], $values[2], $values[3]);
 
-        $index = new stdClass;
+        if (count($values)) {
 
-        foreach ($values as $value) {
-            $index->{$value->key} = new Property($value);
+            $index = new stdClass;
+            foreach ($values as $value) {
+                $index->{$value->key} = new Property($value);
+            }
+
+        } else {
+            $index = null;
         }
 
-        $this->value = $index;
+        $this->cachedValue = $index;
         $this->populateCachedValue();
 
         $this->queryBuilder->update(
