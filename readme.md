@@ -32,6 +32,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface, Entit
 }
 ```
 
+### Running Migrations
+
+```php
+php artisan migrate --package=moon/properties
+```
+
 ### Setting a Key/Value 
 
 ```php
@@ -58,6 +64,14 @@ When updating a key, you have two choices. You can simply use **set($key, $value
 $user = User::find(1);
 $properties = $user->getProperties();
 $properties->set('name',' John'); // Updates John Doe to John
+$properties->ssave();
+```
+
+### Deleting a Value by its Key
+```php
+$user = User::find(1);
+$properties = $user->getProperties();
+$properties->delete('name');
 $properties->ssave();
 ```
 
