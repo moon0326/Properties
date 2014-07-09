@@ -3,8 +3,9 @@
 use Moon\Properties\Exceptions\KeyNotFoundException;
 use Moon\Properties\TableGateway\TableGatewayFactoryInterface;
 use stdClass;
+use Countable;
 
-class Aggregate
+class Aggregate implements Countable
 {
     /**
      * @var string name of the aggregate table
@@ -335,6 +336,10 @@ class Aggregate
             ['cached_value'=>json_encode($index)],
             $this->id
         );
+    }
 
+    public function count()
+    {
+        return count($this->values);
     }
 }

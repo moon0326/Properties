@@ -7,7 +7,7 @@ Implement and use a trait in your model.
 
 ```php
 
-use Moon\Properties\Facades\Laravel\PropertiesTrait;
+use Moon\Properties\Frameworks\Laravel\PropertiesTrait;
 use Moon\Properties\EntityInterface;
 
 class User extends Eloquent implements UserInterface, RemindableInterface, EntityInterface { // Implement EntityInterface
@@ -32,16 +32,14 @@ class User extends Eloquent implements UserInterface, RemindableInterface, Entit
 }
 ```
 
-### Running Migrations
+#### Running Migrations
 
 ```php
 php artisan migrate --package=moon/properties
 ```
 
-### Setting a Key/Value 
-
+#### Setting a Value
 ```php
-
 $user = User::find(1);
 $properties = $user->getProperties();
 $properties->set('name', 'John Doe');
@@ -49,7 +47,7 @@ $properties->save();
 
 ```
 
-### Retriving a Value by Its Key
+#### Retriving a Value by Its Key
 
 ```php
 $user = User::find(1);
@@ -57,25 +55,25 @@ $properties = $user->getProperties();
 echo $properties->get('name'); // outputs 'John Doe'
 ```
 
-### Updating a Value by Its Key
+#### Updating a Value by Its Key
 When updating a key, you have two choices. You can simply use **set($key, $value)** method or **update($key, $value)** method explicitly
 
 ```php
 $user = User::find(1);
 $properties = $user->getProperties();
 $properties->set('name',' John'); // Updates John Doe to John
-$properties->ssave();
+$properties->save();
 ```
 
-### Deleting a Value by its Key
+#### Deleting a Value by its Key
 ```php
 $user = User::find(1);
 $properties = $user->getProperties();
 $properties->delete('name');
-$properties->ssave();
+$properties->save();
 ```
 
-### Getting All the Keys
+#### Getting All the Keys
 
 ```php
 $user = User::find(1);
