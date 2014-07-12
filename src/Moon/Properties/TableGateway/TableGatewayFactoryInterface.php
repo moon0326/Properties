@@ -6,5 +6,5 @@ use Moon\Properties\Value;
 
 interface TableGatewayFactoryInterface
 {
-	public function create(QueryBuilderInterface $queryBuilder, $type);
+    public function create(QueryBuilderInterface $queryBuilder, $type);
 }

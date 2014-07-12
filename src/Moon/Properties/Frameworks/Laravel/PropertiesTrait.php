@@ -6,31 +6,31 @@ use Moon\Properties\TableGateway\TableGatewayFactory;
 
 trait PropertiesTrait
 {
-	public function getIdentifierName()
-	{
-		return 'id';
-	}
+    public function getIdentifierName()
+    {
+        return 'id';
+    }
 
-	public function getIdentifier()
-	{
-		return $this->id;
-	}
+    public function getIdentifier()
+    {
+        return $this->id;
+    }
 
-	public function getName()
-	{
-		return $this->table;
-	}
+    public function getName()
+    {
+        return $this->table;
+    }
 
-	public function getProperties()
-	{
+    public function getProperties()
+    {
 
-		$queryBuilder = new QueryBuilder();
+        $queryBuilder = new QueryBuilder();
 
-		return new Aggregate(
-			$queryBuilder,
-			$this,
-			new TableGatewayFactory()
-		);
+        return new Aggregate(
+            $queryBuilder,
+            $this,
+            new TableGatewayFactory()
+        );
 
-	}
+    }
 }

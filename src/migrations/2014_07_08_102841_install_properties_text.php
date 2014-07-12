@@ -5,32 +5,32 @@ use Illuminate\Database\Migrations\Migration;
 
 class InstallPropertiesText extends Migration {
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-		Schema::create('properties_text', function($table) {
-			$table->increments('id');
-			$table->integer('index_id');
-			$table->string('key');
-			$table->text('value');
-			$table->engine = 'InnoDB';
-			$table->index('index_id');
-			$table->index('key');
-		});
-	}
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('properties_text', function($table) {
+            $table->increments('id');
+            $table->integer('index_id');
+            $table->string('key');
+            $table->text('value');
+            $table->engine = 'InnoDB';
+            $table->index('index_id');
+            $table->index('key');
+        });
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
-		Schema::drop('properties_text');
-	}
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop('properties_text');
+    }
 
 }

@@ -6,17 +6,17 @@ use Moon\Properties\Value;
 
 class TableGatewayFactory implements TableGatewayFactoryInterface
 {
-	protected $basePath = "Moon\Properties\\TableGateway\\";
+    protected $basePath = "Moon\Properties\\TableGateway\\";
 
-	public function create(QueryBuilderInterface $queryBuilder, $type)
-	{
-		$classPath = $this->basePath . $type;
-		return new $classPath($queryBuilder);
-	}
+    public function create(QueryBuilderInterface $queryBuilder, $type)
+    {
+        $classPath = $this->basePath . $type;
+        return new $classPath($queryBuilder);
+    }
 
-	function createByType(QueryBuilderInterface $queryBuilder)
-	{
-		$classPath = $this->basePath . $type;
-		return new $classPath;
-	}
+    function createByType(QueryBuilderInterface $queryBuilder)
+    {
+        $classPath = $this->basePath . $type;
+        return new $classPath;
+    }
 }

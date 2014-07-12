@@ -2,8 +2,8 @@
 
 class Text extends AbstractTableGateway
 {
-	protected function getTableName()
-	{
-		return 'properties_text';
-	}
+    protected function getTableName()
+    {
+        return 'properties_text';
+    }
 }

@@ -4,14 +4,14 @@ use Moon\Properties\Property;
 
 class Php extends AbstractTableGateway
 {
-	protected function getTableName()
-	{
-		return 'properties_text';
-	}
+    protected function getTableName()
+    {
+        return 'properties_text';
+    }
 
-	public function createOrUpdate(Property $value)
-	{
-		$value->value = serialize($value->value);
-		parent::createOrUpdate($value);
-	}
+    public function createOrUpdate(Property $value)
+    {
+        $value->value = serialize($value->value);
+        parent::createOrUpdate($value);
+    }
 }
