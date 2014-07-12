@@ -1,4 +1,4 @@
-<?php namespace Values\Exceptions;
+<?php namespace Moon\Properties\Exceptions;
 
 use Exception;
 

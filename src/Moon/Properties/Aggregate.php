@@ -1,6 +1,7 @@
 <?php namespace Moon\Properties;
 
 use Moon\Properties\Exceptions\KeyNotFoundException;
+use Moon\Properties\Exceptions\UnknownValueTypeException;
 use Moon\Properties\TableGateway\TableGatewayFactoryInterface;
 use stdClass;
 use Countable;
@@ -101,6 +102,7 @@ class Aggregate implements Countable
         $this->pk          = $index->pk;
         $this->pkValue     = $index->pk_value;
         $this->cachedValue = json_decode($index->cached_value);
+
         $this->populateCachedValue();
     }
 
@@ -112,7 +114,6 @@ class Aggregate implements Countable
     {
         if (!$this->cachedValue) {
             $this->values = [];
-
             return;
         }
 
@@ -151,6 +152,19 @@ class Aggregate implements Countable
 
         if ($type === 'array' || $type === 'object') {
             $type = 'php';
+        }
+
+        /**
+         * The table structure only allows two precisions
+         */
+        if ($type === 'double') {
+            $value = (string) $value;
+            $explodedValue = explode(".", $value);
+            if (count($explodedValue) !== 1 ) {
+                if (strlen($explodedValue[1]) > 2) {
+                    throw new UnknownValueTypeException("You can only set a double/float with two precisions or less.");
+                }
+            }
         }
 
         return ucfirst($type) ;
