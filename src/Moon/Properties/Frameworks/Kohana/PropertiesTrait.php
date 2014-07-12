@@ -13,12 +13,12 @@ trait PropertiesTrait
 
 	public function getIdentifier()
 	{
-		return $this->id;
+		return $this->pk();
 	}
 
 	public function getName()
 	{
-		return $this->table;
+		return $this->table_name();
 	}
 
 	public function getProperties()

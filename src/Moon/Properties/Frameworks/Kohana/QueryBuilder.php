@@ -2,6 +2,7 @@
 
 use Moon\Properties\QueryBuilderInterface;
 use \DB as DB;
+use \Database as Database;
 
 class QueryBuilder implements QueryBuilderInterface
 {
@@ -12,10 +13,17 @@ class QueryBuilder implements QueryBuilderInterface
 			$builder->where($key, '=', $value);
 		}
 
-		$record = $builder->execute();
-		if (count($record) === 0) {
+		$record = $builder->as_object()->execute();
+		$count = count($record);
+
+		if ($count === 0) {
 			return null;
 		}
+
+		if ($count === 1) {
+			return [$record->current()];
+		}
+
 
 		return $record;
 	}
@@ -23,7 +31,7 @@ class QueryBuilder implements QueryBuilderInterface
 	public function insert($table, array $values)
 	{
 		$record = DB::insert($table, array_keys($values))->values($values)->execute();
-		return $record;
+		return $record[0];
 	}
 
 	public function selectFirst($table, array $wheres)
@@ -43,19 +51,25 @@ class QueryBuilder implements QueryBuilderInterface
 		return $record;
 	}
 
+	public function delete($table, $id)
+	{
+		$record = DB::table($table)->where('id',$id)->delete();
+		return $record;
+	}
+
 	public function beginTransaction()
 	{
-		DB::begin();
+		Database::instance()->begin();
 	}
 
 	public function rollback()
 	{
-		DB::rollback();
+		Database::instance()->rollback();
 	}
 
 	public function commit()
 	{
-		DB::commit();
+		Database::instance()->commit();
 	}
 
 }
