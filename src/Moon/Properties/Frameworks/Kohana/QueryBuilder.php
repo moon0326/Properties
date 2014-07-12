@@ -1,6 +1,6 @@
-<?php namespace Values\Facades\Kohana;
+<?php namespace Moon\Properties\Facades\Kohana;
 
-use Values\QueryBuilderInterface;
+use Moon\Properties\QueryBuilderInterface;
 use \DB as DB;
 
 class QueryBuilder implements QueryBuilderInterface
@@ -22,7 +22,7 @@ class QueryBuilder implements QueryBuilderInterface
 
 	public function insert($table, array $values)
 	{
-		$record = DB::insert($table, array_keys($values))->values($values);
+		$record = DB::insert($table, array_keys($values))->values($values)->execute();
 		return $record;
 	}
 
@@ -39,13 +39,13 @@ class QueryBuilder implements QueryBuilderInterface
 
 	public function update($table, array $values, $id)
 	{
-		$record = DB::table($table)->where('id',$id)->update($values);
+		$record = DB::update($table)->set($values)->where('id','=',$id)->execute();
 		return $record;
 	}
 
 	public function beginTransaction()
 	{
-		DB::beginTransaction();
+		DB::begin();
 	}
 
 	public function rollback()
