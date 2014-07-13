@@ -1,4 +1,4 @@
-<?php namespace Moon\Properties\Frameworks\Laravel;
+<?php namespace Moon\Properties\Frameworks\Native;
 
 use Moon\Properties\Frameworks\Laravel\QueryBuilder;
 use Moon\Properties\Aggregate;

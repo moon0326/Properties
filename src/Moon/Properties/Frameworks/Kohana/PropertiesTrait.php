@@ -1,6 +1,6 @@
 <?php namespace Moon\Properties\Frameworks\Kohana;
 
-use Moon\Properties\Facades\Kohana\QueryBuilder;
+use Moon\Properties\Frameworks\Kohana\QueryBuilder;
 use Moon\Properties\Aggregate;
 use Moon\Properties\TableGateway\TableGatewayFactory;
 

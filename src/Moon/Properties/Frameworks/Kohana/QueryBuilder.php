@@ -1,4 +1,4 @@
-<?php namespace Moon\Properties\Facades\Kohana;
+<?php namespace Moon\Properties\Frameworks\Kohana;
 
 use Moon\Properties\QueryBuilderInterface;
 use \DB as DB;

@@ -1,4 +1,4 @@
-<?php namespace Properties\tests;
+<?php namespace Properties\tests\Unit;
 
 use PHPUnit_Framework_TestCase;
 use \Moon\Properties\Aggregate;

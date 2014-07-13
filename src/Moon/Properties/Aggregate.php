@@ -106,6 +106,11 @@ class Aggregate implements Countable
         $this->populateCachedValue();
     }
 
+    public function getIndexId()
+    {
+        return $this->id;
+    }
+
     /**
      * Decode cached json and generate Value objects from it
      * @return Void
@@ -165,6 +170,7 @@ class Aggregate implements Countable
                     throw new UnknownValueTypeException("You can only set a double/float with two precisions or less.");
                 }
             }
+            $type = 'decimal';
         }
 
         return ucfirst($type) ;
@@ -287,6 +293,8 @@ class Aggregate implements Countable
 
         try {
 
+             $this->queryBuilder->beginTransaction();
+
             foreach ($this->pendingValues as $pendingValue) {
 
                 $operation = $pendingValue[0];
@@ -324,22 +332,27 @@ class Aggregate implements Countable
     {
         $types = ['Decimal', 'Integer', 'Text', 'Varchar'];
 
+        $typeValues = [];
+
         foreach ($types as $type) {
             $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $type);
-            $values[] = $tableGateway->findByIndexId($this->id);
+            $properties = $tableGateway->findByIndexId($this->id);
+
+            if (count($properties)) {
+                $typeValues[$type] = $properties;
+            }
         }
 
-        $values = array_merge($values[0], $values[1], $values[2], $values[3]);
-
-        if (count($values)) {
-
-            $index = new stdClass;
-            foreach ($values as $value) {
-                $index->{$value->key} = new Property($value);
-            }
-
-        } else {
+        if (count($typeValues) === 0) {
             $index = null;
+        } else {
+            $index = new stdClass;
+            foreach ($typeValues as  $type=>$properties) {
+                foreach ($properties as $property) {
+                    $property->type = $type;
+                    $index->{$property->key} = new Property($property);
+                }
+            }
         }
 
         $this->cachedValue = $index;

@@ -1,4 +1,4 @@
-<?php namespace Moon\Properties\Facades\Laravel;
+<?php namespace Moon\Properties\Frameworks\Laravel;
 
 use Moon\Properties\QueryBuilderInterface;
 
