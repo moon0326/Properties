@@ -126,4 +126,4 @@ print_r($properties->keys()); // returns name, age, and weight as an array
 
 ### License
 
-Presenter is released under the [DBAD](http://www.dbad-license.org) license.
+Properties is released under the [DBAD](http://www.dbad-license.org) license.
