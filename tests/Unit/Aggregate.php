@@ -91,7 +91,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $tableGateway = $this->getTableGatewayMock();
         $tableGateway['methods']['findByIndexId']->andReturn([$fakePropertyValues]);
 
-        $tableGatewayMock = $this->getTableGatewayFactoryInterfaceMock();
+        $tableGatewayMock = $this->getTableGatewayFactoryMock();
         $tableGatewayMock['methods']['create']->andReturn($tableGateway['mock']);
 
         $aggregate = $this->getAggregateMock(null, null, $tableGatewayMock['mock']);
@@ -131,9 +131,15 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $fakePropertyValues->type  = 'Varchar';
 
         $tableGateway = $this->getTableGatewayMock();
-        $tableGateway['methods']['findByIndexId']->with(1)->andReturn([$fakePropertyValues], []);
+        $tableGateway['methods']['findByIndexId']->with(1)->andReturn(
+            [$fakePropertyValues],
+            [$fakePropertyValues],
+            [$fakePropertyValues],
+            [$fakePropertyValues],
+            [] // After delete('dummy')
+        );
 
-        $tableGatewayMock = $this->getTableGatewayFactoryInterfaceMock();
+        $tableGatewayMock = $this->getTableGatewayFactoryMock();
         $tableGatewayMock['methods']['create']->andReturn($tableGateway['mock']);
 
         $aggregate = $this->getAggregateMock(null, null, $tableGatewayMock['mock']);
@@ -168,7 +174,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         }
 
         if (!$tableGatewayMock) {
-            $tableGatewayMock = $this->getTableGatewayFactoryInterfaceMock()['mock'];
+            $tableGatewayMock = $this->getTableGatewayFactoryMock()['mock'];
         }
 
         return new Aggregate($queryBuilderMock, $entityMock, $tableGatewayMock);
@@ -204,9 +210,9 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         ];
     }
 
-    protected function getTableGatewayFactoryInterfaceMock()
+    protected function getTableGatewayFactoryMock()
     {
-        $tableGatewayFactoryInterface = m::mock('\Moon\Properties\TableGateway\TableGatewayFactoryInterface');
+        $tableGatewayFactoryInterface = m::mock('\Moon\Properties\TableGateway\TableGatewayFactory');
         $create                       = $tableGatewayFactoryInterface->shouldReceive('create');
 
         return [

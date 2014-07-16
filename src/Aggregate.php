@@ -2,7 +2,7 @@
 
 use Moon\Properties\Exceptions\KeyNotFoundException;
 use Moon\Properties\Exceptions\UnknownValueTypeException;
-use Moon\Properties\TableGateway\TableGatewayFactoryInterface;
+use Moon\Properties\TableGateway\TableGatewayFactory;
 use stdClass;
 use Countable;
 
