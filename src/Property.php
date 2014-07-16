@@ -17,19 +17,18 @@ class Property
 
         if (isset($values->type)) {
             $this->type = $values->type;
-        }
+            switch ($values->type) {
+                case 'Integer':
+                    $this->value = intval($values->value);
+                    break;
 
-        switch ($values->type) {
-            case 'Integer':
-                $this->value = intval($values->value);
-                break;
-
-            case 'Decimal':
-                /**
-                 * Note that using floatval() drops the precisions if you have .00
-                 */
-                $this->value = floatval($values->value);
-                break;
+                case 'Decimal':
+                    /**
+                     * Note that using floatval() drops the precisions if you have .00
+                     */
+                    $this->value = floatval($values->value);
+                    break;
+            }
         }
 
         if ($this->type === 'Php' && $this->id && is_string($values->value)) {

@@ -208,6 +208,7 @@ class Aggregate implements Countable
         }
 
         $this->addPendingValue($key, $value, $type, $operation, $id);
+        return $this;
     }
 
     /**
@@ -222,7 +223,7 @@ class Aggregate implements Countable
             $this->addPendingValue($key, $value, $type, 'create');
         }
 
-        return true;
+        return $this;
     }
 
     public function delete($key)
@@ -235,6 +236,7 @@ class Aggregate implements Countable
         $property->type = $this->getDataType($property->value);
 
         $this->pendingValues[$key] = ['delete', $property];
+        return $this;
     }
 
     /**
@@ -290,10 +292,9 @@ class Aggregate implements Countable
      */
     public function save()
     {
-
         try {
 
-             $this->queryBuilder->beginTransaction();
+            $this->queryBuilder->beginTransaction();
 
             foreach ($this->pendingValues as $pendingValue) {
 
@@ -347,9 +348,9 @@ class Aggregate implements Countable
             $index = null;
         } else {
             $index = new stdClass;
-            foreach ($typeValues as  $type=>$properties) {
+            foreach ($typeValues as $type=>$properties) {
                 foreach ($properties as $property) {
-                    $property->type = $type;
+                    // $property->type = $type;
                     $index->{$property->key} = new Property($property);
                 }
             }

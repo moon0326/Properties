@@ -31,8 +31,8 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $values = [
             'name'   => ['moon', 'Varchar'],
             'age'    => [999, 'Integer'],
-            'amount' => [13.2, 'Double'],
-            'amount2' => [13.00, 'Double'],
+            'amount' => [13.2, 'Decimal'],
+            'amount2' => [13.00, 'Decimal'],
         ];
 
         $aggregate = $this->getAggregateMock();
@@ -86,6 +86,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $fakePropertyValues->index_id = 1;
         $fakePropertyValues->key      = 'dummy';
         $fakePropertyValues->value    = 'is dummy';
+        $fakePropertyValues->type     = 'Varchar';
 
         $tableGateway = $this->getTableGatewayMock();
         $tableGateway['methods']['findByIndexId']->andReturn([$fakePropertyValues]);
@@ -127,6 +128,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $fakePropertyValues->index_id = 1;
         $fakePropertyValues->key = 'dummy';
         $fakePropertyValues->value = 'is dummy';
+        $fakePropertyValues->type  = 'Varchar';
 
         $tableGateway = $this->getTableGatewayMock();
         $tableGateway['methods']['findByIndexId']->with(1)->andReturn([$fakePropertyValues], []);
@@ -137,6 +139,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $aggregate = $this->getAggregateMock(null, null, $tableGatewayMock['mock']);
         $aggregate->set($fakePropertyValues->key, $fakePropertyValues->value);
         $aggregate->save();
+
 
         $dummy = $aggregate->get('dummy');
 
@@ -239,6 +242,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $stubPropertyValues->index_id = 1;
         $stubPropertyValues->key      = 'name';
         $stubPropertyValues->value    = 'moon';
+        $stubPropertyValues->type     = 'Varchar';
 
         $properties->name             = new Property($stubPropertyValues) ;
         $indexStub->cached_value      = json_encode($properties);

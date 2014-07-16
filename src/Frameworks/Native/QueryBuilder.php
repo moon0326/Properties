@@ -99,7 +99,7 @@ class QueryBuilder implements QueryBuilderInterface
 
     public function delete($table, $id)
     {
-        $queryStr = 'delete ' . $table . ' where id = ' . $id;
+        $queryStr = 'delete from ' . $table . ' where id = ' . $id;
         return $this->conn->query($queryStr);
     }
 

@@ -1,5 +1,6 @@
 {
     "name": "moon/properties",
+    "version": "0.1",
     "authors": [
         {
             "name": "Moon",
@@ -13,8 +14,8 @@
 
     },
     "autoload": {
-    	"psr-0": {
-    		"Moon\\Properties": "src/"
+    	"psr-4": {
+    		"Moon\\Properties\\": "src/"
     	}
     }
 }
