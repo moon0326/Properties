@@ -14,6 +14,11 @@ class Aggregate implements Countable
     protected $tableName = 'properties_aggregate';
 
     /**
+     * @var Array Supported data types
+     */
+    protected $supportedDataTypes = ['Decimal', 'Integer', 'Text', 'Varchar'];
+
+    /**
      * @var Values\QueryBuilderInterface
      */
     protected $queryBuilder;
@@ -66,7 +71,7 @@ class Aggregate implements Countable
     public function __construct(
         QueryBuilderInterface $queryBuilder,
         EntityInterface $entity,
-        TableGatewayFactoryInterface $tableGatewayFactory
+        TableGatewayFactory $tableGatewayFactory
     )
     {
         $this->queryBuilder = $queryBuilder;
@@ -326,11 +331,9 @@ class Aggregate implements Countable
      */
     public function rebuild()
     {
-        $types = ['Decimal', 'Integer', 'Text', 'Varchar'];
-
         $typeValues = [];
 
-        foreach ($types as $type) {
+        foreach ($this->supportedDataTypes as $type) {
             $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $type);
             $properties = $tableGateway->findByIndexId($this->id);
 

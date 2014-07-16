@@ -8,7 +8,7 @@ class QueryBuilder implements QueryBuilderInterface
 {
     public function select($table, array $wheres = [])
     {
-        $builder = \DB::table($table);
+        $builder = DB::table($table);
         foreach ($wheres as $key=>$value) {
             $builder->where($key, '=', $value);
         }
@@ -23,7 +23,7 @@ class QueryBuilder implements QueryBuilderInterface
 
     public function insert($table, array $values)
     {
-        $record = \DB::table($table)->insertGetId($values);
+        $record = DB::table($table)->insertGetId($values);
         return $record;
     }
 
@@ -40,13 +40,13 @@ class QueryBuilder implements QueryBuilderInterface
 
     public function update($table, array $values, $id)
     {
-        $record = \DB::table($table)->where('id',$id)->update($values);
+        $record = DB::table($table)->where('id',$id)->update($values);
         return $record;
     }
 
     public function delete($table, $id)
     {
-        $record = \DB::table($table)->where('id',$id)->delete();
+        $record = DB::table($table)->where('id',$id)->delete();
         return $record;
     }
 

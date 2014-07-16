@@ -3,7 +3,7 @@
 use Moon\Properties\QueryBuilderInterface;
 
 use \DB as DB;
-use PDO;
+use \PDO;
 
 class QueryBuilder implements QueryBuilderInterface
 {
@@ -11,7 +11,11 @@ class QueryBuilder implements QueryBuilderInterface
 
     public function __construct($config)
     {
-        $this->conn = new PDO('mysql:host='.$config['host'].';dbname='.$config['database'], $config['user'], $config['password']);
+        $this->conn = new PDO(
+            'mysql:host='.$config['host'].';dbname='.$config['database'],
+            $config['user'],
+            $config['password']
+        );
     }
 
     public function getConnection()
@@ -89,12 +93,10 @@ class QueryBuilder implements QueryBuilderInterface
 
     public function update($table, array $values, $id)
     {
-
         $queryStr = 'update ' . $table . ' set ' . $this->createWheres($values,',') . ' where id = ' . $id;
         $query = $this->conn->prepare($queryStr);
 
         return $query->execute(array_values($values));
-
     }
 
     public function delete($table, $id)
@@ -117,5 +119,4 @@ class QueryBuilder implements QueryBuilderInterface
     {
         $this->conn->commit();
     }
-
 }

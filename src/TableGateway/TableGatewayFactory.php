@@ -4,7 +4,7 @@ use Moon\Properties\QueryBuilderInterface;
 use Moon\Properties\IndexInterface;
 use Moon\Properties\Value;
 
-class TableGatewayFactory implements TableGatewayFactoryInterface
+class TableGatewayFactory
 {
     protected $basePath = "Moon\Properties\\TableGateway\\";
 
@@ -12,11 +12,5 @@ class TableGatewayFactory implements TableGatewayFactoryInterface
     {
         $classPath = $this->basePath . $type;
         return new $classPath($queryBuilder);
-    }
-
-    function createByType(QueryBuilderInterface $queryBuilder)
-    {
-        $classPath = $this->basePath . $type;
-        return new $classPath;
     }
 }
