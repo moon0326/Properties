@@ -149,20 +149,15 @@ class Aggregate implements Countable
 
         if ($type === 'string') {
             $type = 'varchar';
-        }
-
-        if ($type === 'varchar' && strlen($value) >= 255) {
-            $type = 'text';
-        }
-
-        if ($type === 'array' || $type === 'object') {
+            if (strlen($value) >= 255) {
+                $type = 'text';
+            }
+        } elseif ($type === 'array' || $type === 'object') {
             $type = 'php';
-        }
-
-        /**
-         * The table structure only allows two precisions
-         */
-        if ($type === 'double') {
+        } elseif ($type === 'double') {
+            /**
+             * The table structure only allows two precisions
+             */
             $value = (string) $value;
             $explodedValue = explode(".", $value);
             if (count($explodedValue) !== 1 ) {
@@ -350,7 +345,7 @@ class Aggregate implements Countable
             $index = new stdClass;
             foreach ($typeValues as $type=>$properties) {
                 foreach ($properties as $property) {
-                    // $property->type = $type;
+                    $property->type = $type;
                     $index->{$property->key} = new Property($property);
                 }
             }
