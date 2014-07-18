@@ -6,6 +6,9 @@ use Moon\Properties\TableGateway\TableGatewayFactory;
 
 trait PropertiesTrait
 {
+
+    private $_aggregate = null;
+
     public function getIdentifierName()
     {
         return 'id';
@@ -23,12 +26,16 @@ trait PropertiesTrait
 
     public function getProperties()
     {
-        $queryBuilder = new QueryBuilder();
+        if ($this->_aggregate === null) {
+            $queryBuilder = new QueryBuilder();
 
-        return new Aggregate(
-            $queryBuilder,
-            $this,
-            new TableGatewayFactory()
-        );
+            $this->_aggregate = new Aggregate(
+                $queryBuilder,
+                $this,
+                new TableGatewayFactory()
+            );
+        }
+
+        return $this->_aggregate;
     }
 }

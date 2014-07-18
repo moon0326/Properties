@@ -8,6 +8,9 @@ use Countable;
 
 class Aggregate implements Countable
 {
+
+    protected $loaded = false;
+
     /**
      * @var string name of the aggregate table
      */
@@ -109,6 +112,8 @@ class Aggregate implements Countable
         $this->cachedValue = json_decode($index->cached_value);
 
         $this->populateCachedValue();
+
+        $this->loaded = true;
     }
 
     public function getIndexId()
@@ -229,13 +234,13 @@ class Aggregate implements Countable
     public function delete($key)
     {
         if (!$this->has($key)) {
-            throw new KeyNotFoundException($key . ' doesn\'t exist. You can\'t delete it');
+            throw new KeyNotFoundException($key . ' doesn\'t exist. You can\'t unset it');
         }
 
         $property = $this->get($key, true);
         $property->type = $this->getDataType($property->value);
 
-        $this->pendingValues[$key] = ['delete', $property];
+        $this->pendingValues[$key] = ['unset', $property];
         return $this;
     }
 
@@ -245,6 +250,10 @@ class Aggregate implements Countable
      */
     public function has($key)
     {
+        if (!$this->loaded) {
+            throw new DomainException("The current aggregate object has been destroyed or not initialized.");
+        }
+
         return array_key_exists($key, $this->values);
     }
 
@@ -265,6 +274,34 @@ class Aggregate implements Countable
         }
 
         return $this->values[$key]->value;
+    }
+
+    /**
+     * Destroy all the values and and the aggregate
+     * @return Boolean
+     */
+    public function destroy()
+    {
+
+         try {
+
+            $this->queryBuilder->beginTransaction();
+
+            foreach ($this->supportedDataTypes as $supportedDataType) {
+                $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $type);
+                $tableGateway->deleteByIndexId($this->id);
+            }
+
+            $this->queryBuilder->delete($this->tableName, ['id'=>$this->id]);
+            $this->queryBuilder->commit();
+
+        } catch (\Exception $e) {
+            $this->queryBuilder->rollback();
+            throw $e;
+        }
+
+        $this->loaded = false;
+
     }
 
     public function all()
@@ -307,8 +344,8 @@ class Aggregate implements Countable
                     case 'create':
                         $result = $tableGateway->createOrUpdate($property);
                         break;
-                    case 'delete':
-                        $result = $tableGateway->delete($property);
+                    case 'unset':
+                        $result = $tableGateway->unset($property);
                         break;
                 }
             }
