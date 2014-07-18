@@ -66,4 +66,9 @@ abstract class AbstractTableGateway implements TableGatewayInterface
 
         return $result;
     }
+
+    public function deleteByIndexId($indexId)
+    {
+        return $this->queryBuilder->delete($this->getTableName(), ['index_id'=>$indexId]);
+    }
 }

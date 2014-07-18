@@ -288,7 +288,7 @@ class Aggregate implements Countable
             $this->queryBuilder->beginTransaction();
 
             foreach ($this->supportedDataTypes as $supportedDataType) {
-                $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $type);
+                $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $supportedDataType);
                 $tableGateway->deleteByIndexId($this->id);
             }
 
