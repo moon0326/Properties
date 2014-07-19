@@ -2,6 +2,7 @@
 
 use Moon\Properties\QueryBuilderInterface;
 use Moon\Properties\Property;
+use Moon\Properties\Properties\PropertyInterface;
 
 abstract class AbstractTableGateway implements TableGatewayInterface
 {
@@ -14,45 +15,41 @@ abstract class AbstractTableGateway implements TableGatewayInterface
         $this->queryBuilder = $queryBuilder;
     }
 
-    public function create(Property $property)
+    public function create(PropertyInterface $property)
     {
         $values = [
-            'index_id' => $property->index_id,
-            'key'      => $property->key,
-            'value'    => $property->value
+            'index_id' => $property->getIndexId(),
+            'name'     => $property->getName(),
+            'value'    => $property->getValue()
         ];
-
-        if (isset($value->type)) {
-            $values['type'] = $property->type;
-        }
 
         $result = $this->queryBuilder->insert($this->getTableName(), $values);
 
         return $result;
     }
 
-    public function createOrUpdate(Property $property)
+    public function createOrUpdate(PropertyInterface $property)
     {
-        if ($property->id) {
+        if ($property->getId()) {
             return $this->update($property);
         }
 
         return $this->create($property);
     }
 
-    public function update(Property $property)
+    public function update(PropertyInterface $property)
     {
         $result = $this->queryBuilder->update($this->getTableName(),[
-            'key'      => $property->key,
-            'value'    => $property->value
-        ], $property->id);
+            'name'      => $property->getName(),
+            'value'    => $property->getValue()
+        ], $property->getId());
 
         return $result;
     }
 
-    public function delete(Property $property)
+    public function delete(PropertyInterface $property)
     {
-        $result = $this->queryBuilder->delete($this->getTableName(), $property->id);
+        $result = $this->queryBuilder->delete($this->getTableName(), ['id'=>$property->getId()]);
         return $result;
     }
 

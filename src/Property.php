@@ -1,5 +1,9 @@
 <?php namespace Moon\Properties;
 
+/**
+ * Represents a property
+ * @todo  consider polymorphism if you need anymore type
+ */
 class Property
 {
     public $id;

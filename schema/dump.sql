@@ -6,7 +6,7 @@ CREATE TABLE `properties_aggregate` (
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `pk` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `pk_value` int(11) NOT NULL,
-  `cached_value` text COLLATE utf8_unicode_ci,
+  `cached_properties` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `properties_aggregate_pk_index` (`pk`),
   KEY `properties_aggregate_pk_value_index` (`pk_value`)

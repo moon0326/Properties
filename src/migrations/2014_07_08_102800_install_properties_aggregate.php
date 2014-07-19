@@ -17,7 +17,7 @@ class InstallPropertiesAggregate extends Migration {
             $table->string('name');
             $table->string('pk');
             $table->integer('pk_value');
-            $table->text('cached_value')->nullable();
+            $table->text('cached_properties')->nullable();
             $table->engine = 'InnoDB';
             $table->index('pk');
             $table->index('pk_value');

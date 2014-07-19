@@ -251,7 +251,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $stubPropertyValues->type     = 'Varchar';
 
         $properties->name             = new Property($stubPropertyValues) ;
-        $indexStub->cached_value      = json_encode($properties);
+        $indexStub->cached_properties      = json_encode($properties);
 
         return $indexStub;
     }

@@ -44,9 +44,16 @@ class QueryBuilder implements QueryBuilderInterface
         return $record;
     }
 
-    public function delete($table, $id)
+    public function delete($table, array $values)
     {
-        $record = DB::table($table)->where('id',$id)->delete();
+        $record = DB::table($table);
+
+        foreach ($values as $key=>$value) {
+            $record->where($key,'=',$value);
+        }
+
+        $record->delete();
+
         return $record;
     }
 

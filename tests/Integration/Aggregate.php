@@ -5,6 +5,7 @@ use \Mockery as m;
 use \Moon\Properties\Frameworks\Native\QueryBuilder;
 use \Moon\Properties\Aggregate;
 use \Moon\Properties\TableGateway\TableGatewayFactory;
+use \Moon\Properties\Properties\PropertyFactory;
 use \Moon\Properties\EntityInterface;
 
 class EntityTest implements EntityInterface
@@ -32,7 +33,6 @@ class Base extends \PHPUnit_Framework_TestCase
 
 	public function setUp()
 	{
-
         $this->queryBuilder = new QueryBuilder([
 			'host' => 'localhost',
 			'database' => 'phpvideo',
@@ -44,9 +44,9 @@ class Base extends \PHPUnit_Framework_TestCase
         $this->aggregate = new Aggregate(
             $this->queryBuilder,
             new EntityTest(),
-            new TableGatewayFactory()
+            new TableGatewayFactory(),
+            new PropertyFactory()
         );
-
 	}
 
     public function tearDown()
@@ -61,12 +61,14 @@ class Base extends \PHPUnit_Framework_TestCase
         m::close();
     }
 
- public function testSettingSingleValue()
+    public function testSettingSingleValue()
     {
         $this->aggregate->set('name', 'moon');
         $this->aggregate->save();
 
-        $savedValue = $this->queryBuilder->selectFirst('properties_varchar', ['index_id'=>$this->aggregate->getIndexId(), 'key'=>'name']);
+
+        $savedValue = $this->queryBuilder->selectFirst('properties_varchar', ['index_id'=>$this->aggregate->getIndexId(), 'name'=>'name']);
+
 
         $this->assertTrue(isset($savedValue));
         $this->assertEquals('moon', $savedValue->value);
@@ -80,8 +82,8 @@ class Base extends \PHPUnit_Framework_TestCase
 
         $indexId = $this->aggregate->getIndexId();
 
-        $name = $this->queryBuilder->selectFirst('properties_varchar',['index_id'=>$indexId, 'key'=>'name']);
-        $weight = $this->queryBuilder->selectFirst('properties_integer',['index_id'=>$indexId, 'key'=>'weight']);
+        $name = $this->queryBuilder->selectFirst('properties_varchar',['index_id'=>$indexId, 'name'=>'name']);
+        $weight = $this->queryBuilder->selectFirst('properties_integer',['index_id'=>$indexId, 'name'=>'weight']);
 
         $this->assertTrue(isset($name));
         $this->assertTrue(isset($weight));
@@ -108,12 +110,32 @@ class Base extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($this->aggregate->all()));
     }
 
+    public function testDestory()
+    {
+        $originalAggregateId = $this->aggregate->getIndexId();
+        $this->aggregate->destroy();
+
+        $aggregateId = $this->aggregate->getIndexId();
+        $this->assertTrue($originalAggregateId !== $aggregateId);
+    }
+
+    public function testAggregateShouldBeReusableAfterDestroy()
+    {
+        $originalAggregateId = $this->aggregate->getIndexId();
+        $this->aggregate->destroy();
+        $this->aggregate->set('name', 'moon');
+        $this->aggregate->save();
+
+        $this->assertEquals($this->aggregate->get('name'), 'moon');
+        $this->assertTrue($originalAggregateId !== $this->aggregate->getIndexId());
+    }
+
     /**
      * Helpers
      */
     protected function getByKey($type, $key, $returnFirst)
     {
-        $rows = $this->queryBuilder->select('properties_' . $type, ['index_id'=>$this->aggregate->getIndexId(), 'key'=>$key]);
+        $rows = $this->queryBuilder->select('properties_' . $type, ['index_id'=>$this->aggregate->getIndexId(), 'name'=>$key]);
 
         if ($returnFirst) {
             return $rows[0];

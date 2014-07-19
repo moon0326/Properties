@@ -3,12 +3,25 @@
 use Moon\Properties\Exceptions\KeyNotFoundException;
 use Moon\Properties\Exceptions\UnknownValueTypeException;
 use Moon\Properties\TableGateway\TableGatewayFactory;
+use Moon\Properties\Properties\PropertyFactory;
 use stdClass;
 use Countable;
 
+/**
+ * An aggreagte for the properties
+ * Takes care of operations for the beloging properties
+ */
 class Aggregate implements Countable
 {
 
+    /**
+     * Indicates whether a record was loaded from properties_aggregate or not.
+     * As of now, this value is only useful for checking the state of Aggregate object when destroy() is called.
+     * When a user tries to call set, update, or delete methods after calling destroy(),
+     * has($key) checks to see if $loaded is set to true. Otherwise, DomainException exception will be thrown
+     * @todo  find a better way of handling the state after destory()
+     * @var boolean
+     */
     protected $loaded = false;
 
     /**
@@ -22,71 +35,86 @@ class Aggregate implements Countable
     protected $supportedDataTypes = ['Decimal', 'Integer', 'Text', 'Varchar'];
 
     /**
-     * @var Values\QueryBuilderInterface
+     * @var Properties\QueryBuilderInterface
      */
     protected $queryBuilder;
 
     /**
-     * @var Values\EntityInterface
+     * @var Properties\EntityInterface
      */
     protected $entity;
 
     /**
-     * @var Values\TableGateway\TableGatewayFactoryInterface
+     * @var Properties\TableGateway\TableGatewayFactory
      */
     protected $tableGatewayFactory;
 
     /**
+     * @var Properties\Properties\PropertyFactory
+     */
+    protected $propertyFactory;
+
+    /**
+     * Maps to id in properties_aggregate
      * @var int
      */
     protected $id;
 
     /**
+     * Maps to name in properties_aggregate
      * @var string
      */
     protected $name;
 
     /**
+     * Maps to pk in properties_aggregate
      * @var string
      */
     protected $pk;
 
     /**
+     * Maps to pk_value in properties_aggregate
      * @var int
      */
     protected $pkValue;
 
     /**
+     * Maps to cached_value in properties_aggregate
+     * Any saved values will be saved as a json in this field for caching purpose
      * @var string json encoded values
      */
-    protected $cachedValue;
+    protected $cachedProperties;
 
     /**
-     * @var Array popuplatd values from $cachedValue
+     * @var Array popuplatd properties from $cachedProperties
      */
-    protected $values;
+    protected $properties;
 
     /**
-     * @var Array
+     * set, update, delete operations are transactional.
+     * Unless you call save() explicitly, those methods do not have any impact on the data.
+     * $pendingProperties holds any pending Property objects that's waiting to be saved/updated/deleted.
+     * @var Array any pending properties for delete/insert/update operations
      */
-    protected $pendingValues = [];
+    protected $pendingProperties = [];
 
     public function __construct(
         QueryBuilderInterface $queryBuilder,
         EntityInterface $entity,
-        TableGatewayFactory $tableGatewayFactory
+        TableGatewayFactory $tableGatewayFactory,
+        PropertyFactory $propertyFactory
     )
     {
-        $this->queryBuilder = $queryBuilder;
-        $this->entity = $entity;
+        $this->queryBuilder        = $queryBuilder;
+        $this->entity              = $entity;
         $this->tableGatewayFactory = $tableGatewayFactory;
+        $this->propertyFactory     = $propertyFactory;
 
         $this->loadOrCreate();
-
     }
 
     /**
-     * Create a new row in $tableName
+     * Creates a new row in $tableName
      * or loads an existing row
      * @return Void
      */
@@ -105,13 +133,13 @@ class Aggregate implements Countable
             $index = $this->createNewRecord();
         }
 
-        $this->id          = $index->id;
-        $this->name        = $index->name;
-        $this->pk          = $index->pk;
-        $this->pkValue     = $index->pk_value;
-        $this->cachedValue = json_decode($index->cached_value);
+        $this->id               = $index->id;
+        $this->name             = $index->name;
+        $this->pk               = $index->pk;
+        $this->pkValue          = $index->pk_value;
+        $this->cachedProperties = json_decode($index->cached_properties);
 
-        $this->populateCachedValue();
+        $this->populateCachedProperties();
 
         $this->loaded = true;
     }
@@ -125,15 +153,15 @@ class Aggregate implements Countable
      * Decode cached json and generate Value objects from it
      * @return Void
      */
-    protected function populateCachedValue()
+    protected function populateCachedProperties()
     {
-        if (!$this->cachedValue) {
-            $this->values = [];
+        if (!$this->cachedProperties) {
+            $this->properties = [];
             return;
         }
 
-        foreach ($this->cachedValue as $key=>$value) {
-            $this->values[$value->key] = new Property($value);
+        foreach ($this->cachedProperties as $key=>$property) {
+            $this->properties[$property->name] = $this->propertyFactory->createWithValues($property);
         }
     }
 
@@ -153,84 +181,56 @@ class Aggregate implements Countable
         return $index;
     }
 
-    protected function getDataType($value)
-    {
-        $type = gettype($value);
-
-        if ($type === 'string') {
-            $type = 'varchar';
-            if (strlen($value) >= 255) {
-                $type = 'text';
-            }
-        } elseif ($type === 'array' || $type === 'object') {
-            $type = 'php';
-        } elseif ($type === 'double') {
-            /**
-             * The table structure only allows two precisions
-             */
-            $value = (string) $value;
-            $explodedValue = explode(".", $value);
-            if (count($explodedValue) !== 1 ) {
-                if (strlen($explodedValue[1]) > 2) {
-                    throw new UnknownValueTypeException("You can only set a double/float with two precisions or less.");
-                }
-            }
-            $type = 'decimal';
-        }
-
-        return ucfirst($type) ;
-    }
 
     /**
-     * Add a temporary Value object to the pendingValues stack
-     * Determins a data type for the given value if not given
+     * Add a temporary Property object to the $pendingProperties
      * @return Void
      */
-    protected function addPendingValue($key, $value, $type = null, $operation, $id = null)
+    protected function addPendingProperty($name, $value, $operation, $id = null)
     {
-        if (!$type) {
-            $type = $this->getDataType($value);
-        }
-
         $values = new stdClass;
-        $values->key = $key;
+        $values->name = $name;
         $values->value = $value;
-        $values->type = $type;
         $values->id = $id;
         $values->index_id = $this->id;
 
-        $this->pendingValues[$key] = [$operation, new Property($values)];
+        $property = $this->propertyFactory->createWithValues($values);
+        $this->pendingProperties[$name] = [$operation, $property];
     }
 
     /**
-     * Updates an exsiting value by its key
+     * Updates an exsiting property by its key
      * @return Void
      */
-    protected function update($key, $value, $type = null, $operation, $id = null)
+    protected function update($key, $value, $operation, $id = null)
     {
         if (!$this->has($key, $value)) {
             throw new KeyNotFoundException($key . ' doesn\'t exist. Please use set($key, $value, $type) to create it');
         }
 
-        $this->addPendingValue($key, $value, $type, $operation, $id);
+        $this->addPendingProperty($key, $value, $operation, $id);
         return $this;
     }
 
     /**
-     * Sets a new key/value pair or updates an existing row
-     * @return Boolean
+     * Sets a new Property or updates an existing Property
+     * @return Aggregate
      */
-    public function set($key, $value, $type = null)
+    public function set($key, $value)
     {
         if ($this->has($key)) {
-            $this->update($key, $value, $type, 'update', $this->get($key, true)->id);
+            $this->update($key, $value, 'update', $this->get($key, true)->getId());
         } else {
-            $this->addPendingValue($key, $value, $type, 'create');
+            $this->addPendingProperty($key, $value, 'create');
         }
 
         return $this;
     }
 
+    /**
+     * Deletes a Property
+     * @return Aggregate
+     */
     public function delete($key)
     {
         if (!$this->has($key)) {
@@ -238,9 +238,8 @@ class Aggregate implements Countable
         }
 
         $property = $this->get($key, true);
-        $property->type = $this->getDataType($property->value);
 
-        $this->pendingValues[$key] = ['unset', $property];
+        $this->pendingProperties[$key] = ['delete', $property];
         return $this;
     }
 
@@ -251,17 +250,17 @@ class Aggregate implements Countable
     public function has($key)
     {
         if (!$this->loaded) {
-            throw new DomainException("The current aggregate object has been destroyed or not initialized.");
+            $this->loadOrCreate();
         }
 
-        return array_key_exists($key, $this->values);
+        return array_key_exists($key, $this->properties);
     }
 
     /**
-     * Return a value by its key
+     * Returns a Property by its key
      * @param  string      $key
      * @param  boolean     $returnObject
-     * @return Value|mixed if @returnObject is set, a Value object is returned
+     * @return Property|mixed returns Property if set to true
      */
     public function get($key, $returnObject = false)
     {
@@ -270,19 +269,18 @@ class Aggregate implements Countable
         }
 
         if ($returnObject) {
-            return $this->values[$key];
+            return $this->properties[$key];
         }
 
-        return $this->values[$key]->value;
+        return $this->properties[$key]->getValue();
     }
 
     /**
-     * Destroy all the values and and the aggregate
+     * Destroy all the properties and and the aggregate
      * @return Boolean
      */
     public function destroy()
     {
-
          try {
 
             $this->queryBuilder->beginTransaction();
@@ -300,18 +298,23 @@ class Aggregate implements Countable
             throw $e;
         }
 
+        $this->id = null;
+        $this->name = null;
+        $this->pk = null;
+        $this->pkValue = null;
+        $this->cachedProperties = null;
+        $this->pendingProperties = [];
         $this->loaded = false;
-
     }
 
     public function all()
     {
-        return $this->values;
+        return $this->properties;
     }
 
     public function getPendingProperties()
     {
-        return $this->pendingValues;
+        return $this->pendingProperties;
     }
 
     /**
@@ -320,7 +323,7 @@ class Aggregate implements Countable
      */
     public function keys()
     {
-        return array_keys($this->values);
+        return array_keys($this->properties);
     }
 
     /**
@@ -333,40 +336,44 @@ class Aggregate implements Countable
 
             $this->queryBuilder->beginTransaction();
 
-            foreach ($this->pendingValues as $pendingValue) {
+            foreach ($this->pendingProperties as $pendingProperty) {
 
-                $operation = $pendingValue[0];
-                $property = $pendingValue[1];
-                $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $property->type);
+                $operation = $pendingProperty[0];
+                $property = $pendingProperty[1];
+                $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $property->getDataType());
 
                 switch ($operation) {
                     case 'update':
                     case 'create':
                         $result = $tableGateway->createOrUpdate($property);
                         break;
-                    case 'unset':
-                        $result = $tableGateway->unset($property);
+                    case 'delete':
+                        $result = $tableGateway->delete($property);
                         break;
                 }
             }
 
             $this->queryBuilder->commit();
-            $this->rebuild();
+            $this->sync();
 
         } catch (\Exception $e) {
+            echo $e->getMessage();
+            echo "\n";
+            echo $e->getFile();
+            echo "\n";
+            echo $e->getLine();
             $this->queryBuilder->rollback();
-            throw $e;
         }
 
-        $this->pendingValues = [];
+        $this->pendingProperties = [];
 
         return true;
     }
 
     /**
-     * Rebuild a cached_value value
+     * Rebuild a cached_properties of properties_aggregate
      */
-    public function rebuild()
+    public function sync()
     {
         $typeValues = [];
 
@@ -375,34 +382,43 @@ class Aggregate implements Countable
             $properties = $tableGateway->findByIndexId($this->id);
 
             if (count($properties)) {
-                $typeValues[$type] = $properties;
+                $typeValues[] = $properties;
             }
         }
+
+
 
         if (count($typeValues) === 0) {
             $index = null;
         } else {
             $index = new stdClass;
-            foreach ($typeValues as $type=>$properties) {
-                foreach ($properties as $property) {
-                    $property->type = $type;
-                    $index->{$property->key} = new Property($property);
+            // foreach ($typeValues as $type=>$properties) {
+            //     foreach ($properties as $property) {
+            //         $property->type = $type;
+            //         $index->{$property->getName()} = new Property($property);
+            //     }
+            // }
+
+            foreach ($typeValues as $values) {
+                foreach ($values as $value) {
+                    $index->{$value->name} = $value;
                 }
             }
+
         }
 
-        $this->cachedValue = $index;
-        $this->populateCachedValue();
+        $this->cachedProperties = $index;
+        $this->populateCachedProperties();
 
         $this->queryBuilder->update(
             $this->tableName,
-            ['cached_value'=>json_encode($index)],
+            ['cached_properties'=>json_encode($index)],
             $this->id
         );
     }
 
     public function count()
     {
-        return count($this->values);
+        return count($this->properties);
     }
 }

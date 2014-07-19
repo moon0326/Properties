@@ -3,6 +3,8 @@
 use Moon\Properties\Frameworks\Laravel\QueryBuilder;
 use Moon\Properties\Aggregate;
 use Moon\Properties\TableGateway\TableGatewayFactory;
+use Moon\Properties\Properties\PropertyFactory;
+
 
 trait PropertiesTrait
 {
@@ -32,7 +34,8 @@ trait PropertiesTrait
             $this->_aggregate = new Aggregate(
                 $queryBuilder,
                 $this,
-                new TableGatewayFactory()
+                new TableGatewayFactory(),
+                new PropertyFactory()
             );
         }
 

@@ -72,10 +72,10 @@ class QueryBuilder implements QueryBuilderInterface
 
         $query = $this->conn->prepare("insert into ". $table . ' ' . $colsStr . ' values '.$valuesPlaceholder);
 
-
         $result = $query->execute(array_values($values));
 
         $id = $this->conn->lastInsertId();
+
 
         return $id;
     }
@@ -88,6 +88,7 @@ class QueryBuilder implements QueryBuilderInterface
             return $record[0];
         }
 
+
         return $record;
     }
 
@@ -99,10 +100,12 @@ class QueryBuilder implements QueryBuilderInterface
         return $query->execute(array_values($values));
     }
 
-    public function delete($table, $id)
+    public function delete($table, array $values)
     {
-        $queryStr = 'delete from ' . $table . ' where id = ' . $id;
-        return $this->conn->query($queryStr);
+        $queryStr = 'delete from ' . $table . ' where ' . $this->createWheres($values,',');
+        $query = $this->conn->prepare($queryStr);
+
+        return $query->execute(array_values($values));
     }
 
     public function beginTransaction()
