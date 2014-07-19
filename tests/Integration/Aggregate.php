@@ -4,7 +4,7 @@ use \Mockery as m;
 
 use \Moon\Properties\Frameworks\Native\QueryBuilder;
 use \Moon\Properties\Aggregate;
-use \Moon\Properties\TableGateway\TableGatewayFactory;
+use \Moon\Properties\TableGateways\TableGatewayFactory;
 use \Moon\Properties\Properties\PropertyFactory;
 use \Moon\Properties\EntityInterface;
 

@@ -1,5 +1,5 @@
 # Properties
-A framework agnostic package to make it easy to model EAV (Entity Attribute Value) around your objects.
+A framework agnostic package to model EAV (Entity Attribute Value) around your objects.
 
 **Warning: This is a pre-release. DO NOT install.**
 ## Table of Contents
@@ -8,6 +8,8 @@ A framework agnostic package to make it easy to model EAV (Entity Attribute Valu
     - <a href="#composer">Composer</a>
     - <a href="#laravel-4">Laravel 4</a>
     - <a href="#kohana">Kohana 3</a>
+    - <a href="#codeigniter">Codeigniter</a>
+    - <a href="#">Native</a>
 - <a href="#usage">Usage</a>
 	- <a href="#laravel-4-general-usage">Laravel 4 - General Usage</a>
 - <a href="#change-log">Change Log</a>
@@ -81,7 +83,6 @@ $properties = $user->getProperties();
 $properties->set('name', 'John Doe');
 $properties->save();
 
-var_dump($properties->get('name'))
 
 ```
 
@@ -90,7 +91,8 @@ var_dump($properties->get('name'))
 ```php
 $user = User::find(1);
 $properties = $user->getProperties();
-echo $properties->get('name'); // outputs 'John Doe'
+
+var_dump($properties->get('name')); // string 'John Doe' (length=7)
 ```
 
 ### Updating Existing Value
@@ -122,6 +124,23 @@ $properties->set('weight', 180);
 $properties->save();
 
 print_r($properties->keys()); // returns name, age, and weight as an array
+```
+
+### Destorying
+```php
+$user = User::find(1);
+$properties = $user->getProperties();
+
+var_dump($properties->getIndexId()); // int 1
+
+$properties->destroy();
+
+$properties->set('type', 'cat');
+$properties->save();
+
+var_dump($properties->getIndexId()); // int 2; notice that we have a new id now.
+
+
 ```
 
 ### License

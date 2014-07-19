@@ -1,4 +1,4 @@
-<?php namespace Moon\Properties\TableGateway;
+<?php namespace Moon\Properties\TableGateways;
 
 use Moon\Properties\QueryBuilderInterface;
 use Moon\Properties\Property;
@@ -17,15 +17,11 @@ abstract class AbstractTableGateway implements TableGatewayInterface
 
     public function create(PropertyInterface $property)
     {
-        $values = [
+        return $this->queryBuilder->insert($this->getTableName(), [
             'index_id' => $property->getIndexId(),
             'name'     => $property->getName(),
             'value'    => $property->getValue()
-        ];
-
-        $result = $this->queryBuilder->insert($this->getTableName(), $values);
-
-        return $result;
+        ]);
     }
 
     public function createOrUpdate(PropertyInterface $property)
@@ -39,18 +35,15 @@ abstract class AbstractTableGateway implements TableGatewayInterface
 
     public function update(PropertyInterface $property)
     {
-        $result = $this->queryBuilder->update($this->getTableName(),[
+        return $this->queryBuilder->update($this->getTableName(),[
             'name'      => $property->getName(),
             'value'    => $property->getValue()
         ], $property->getId());
-
-        return $result;
     }
 
     public function delete(PropertyInterface $property)
     {
-        $result = $this->queryBuilder->delete($this->getTableName(), ['id'=>$property->getId()]);
-        return $result;
+        return $this->queryBuilder->delete($this->getTableName(), ['id'=>$property->getId()]);
     }
 
     public function findByIndexId($indexId)

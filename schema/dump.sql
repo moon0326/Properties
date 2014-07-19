@@ -20,11 +20,11 @@ CREATE TABLE `properties_aggregate` (
 CREATE TABLE `properties_decimal` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `index_id` int(11) NOT NULL,
-  `key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `value` decimal(14,2) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `properties_decimal_index_id_index` (`index_id`),
-  KEY `properties_decimal_key_index` (`key`)
+  KEY `properties_decimal_name_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -35,11 +35,11 @@ CREATE TABLE `properties_decimal` (
 CREATE TABLE `properties_integer` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `index_id` int(11) NOT NULL,
-  `key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `value` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `properties_integer_index_id_index` (`index_id`),
-  KEY `properties_integer_key_index` (`key`)
+  KEY `properties_integer_name_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -50,11 +50,11 @@ CREATE TABLE `properties_integer` (
 CREATE TABLE `properties_text` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `index_id` int(11) NOT NULL,
-  `key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `value` text COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `properties_text_index_id_index` (`index_id`),
-  KEY `properties_text_key_index` (`key`)
+  KEY `properties_text_key_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -67,11 +67,11 @@ DROP TABLE IF EXISTS `properties_varchar`;
 CREATE TABLE `properties_varchar` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `index_id` int(11) NOT NULL,
-  `key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `properties_varchar_index_id_index` (`index_id`),
-  KEY `properties_varchar_key_index` (`key`)
+  KEY `properties_varchar_name_index` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 

@@ -38,8 +38,13 @@ class PropertyFactory
 
 	public function createWithValues($values)
 	{
-		$type = $this->getDataType($values->value);
-		$classPath = "Moon\\Properties\\Properties\\" . ucfirst($type) . "Property";
+        if (isset($values->type)) {
+            $type = $values->type;
+        } else {
+            $type = ucfirst($this->getDataType($values->value));
+        }
+
+		$classPath = "Moon\\Properties\\Properties\\" . $type . "Property";
 		return new $classPath($values);
 	}
 }

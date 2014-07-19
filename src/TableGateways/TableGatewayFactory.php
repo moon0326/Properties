@@ -1,4 +1,4 @@
-<?php namespace Moon\Properties\TableGateway;
+<?php namespace Moon\Properties\TableGateways;
 
 use Moon\Properties\QueryBuilderInterface;
 use Moon\Properties\IndexInterface;
@@ -7,11 +7,9 @@ use Moon\Properties\Properties\PropertyInterface;
 
 class TableGatewayFactory
 {
-    protected $basePath = "Moon\Properties\\TableGateway\\";
-
     public function create(QueryBuilderInterface $queryBuilder, $dataType)
     {
-        $classPath = $this->basePath . ucfirst($dataType);
+        $classPath = "Moon\\Properties\\TableGateways\\" . ucfirst($dataType);
         return new $classPath($queryBuilder);
     }
 }

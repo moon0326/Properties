@@ -15,11 +15,11 @@ class InstallPropertiesInteger extends Migration {
         Schema::create('properties_integer', function($table) {
             $table->increments('id');
             $table->integer('index_id');
-            $table->string('key');
+            $table->string('name');
             $table->integer('value');
             $table->engine = 'InnoDB';
             $table->index('index_id');
-            $table->index('key');
+            $table->index('name');
         });
     }
 

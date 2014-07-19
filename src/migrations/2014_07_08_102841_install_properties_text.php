@@ -15,11 +15,11 @@ class InstallPropertiesText extends Migration {
         Schema::create('properties_text', function($table) {
             $table->increments('id');
             $table->integer('index_id');
-            $table->string('key');
+            $table->string('name');
             $table->text('value');
             $table->engine = 'InnoDB';
             $table->index('index_id');
-            $table->index('key');
+            $table->index('name');
         });
     }
 
