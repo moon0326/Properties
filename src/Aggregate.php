@@ -31,7 +31,7 @@ class Aggregate implements Countable
     /**
      * @var Array Supported data types
      */
-    protected $supportedDataTypes = ['Decimal', 'Integer', 'Text', 'Varchar'];
+    protected $supportedDataTypes = ['decimal', 'integer', 'text', 'varchar'];
 
     /**
      * @var Properties\QueryBuilderInterface
@@ -346,17 +346,37 @@ class Aggregate implements Countable
     public function sync()
     {
         $index = new stdClass;
+
+        $queries = [];
         foreach ($this->supportedDataTypes as $type) {
-            $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $type);
-            foreach ($tableGateway->findByIndexId($this->id) as $property) {
-                $property->type = $type;
+            $fields = "{$type}.id, {$type}.index_id, {$type}.name, {$type}.value, '{$type}' as type";
+            $queries[] = "select {$fields} from properties_{$type} as `{$type}` where index_id={$this->id}";
+        }
+
+        $queryString = implode(' union ', $queries);
+
+        $properties = $this->queryBuilder->query($queryString);
+
+        if (count($properties) === 0) {
+            $index = null;
+        } else {
+            foreach ($properties as $property) {
                 $index->{$property->name} = $property;
             }
         }
 
-        if (!count((array) $index)) {
-            $index = null;
-        }
+
+        // foreach ($this->supportedDataTypes as $type) {
+        //     $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $type);
+        //     foreach ($tableGateway->findByIndexId($this->id) as $property) {
+        //         $property->type = $type;
+        //         $index->{$property->name} = $property;
+        //     }
+        // }
+
+        // if (!count((array) $index)) {
+        //     $index = null;
+        // }
 
         $this->cachedProperties = $index;
         $this->populateCachedProperties();

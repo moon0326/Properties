@@ -57,6 +57,11 @@ class QueryBuilder implements QueryBuilderInterface
         return $record;
     }
 
+    public function query($queryString)
+    {
+        return DB::select($queryString);
+    }
+
     public function beginTransaction()
     {
         DB::beginTransaction();

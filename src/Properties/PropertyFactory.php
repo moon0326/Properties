@@ -44,7 +44,7 @@ class PropertyFactory
             $type = ucfirst($this->getDataType($values->value));
         }
 
-		$classPath = "Moon\\Properties\\Properties\\" . $type . "Property";
+		$classPath = "Moon\\Properties\\Properties\\" . ucfirst($type) . "Property";
 		return new $classPath($values);
 	}
 }
