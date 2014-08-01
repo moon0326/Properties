@@ -1,9 +1,11 @@
-<?php namespace Properties\tests\Unit;
+<?php
 
-use PHPUnit_Framework_TestCase;
 use \Moon\Properties\Aggregate;
-use \Moon\Properties\Property;
+use \Moon\Properties\Properties\PropertyFactory;
 use \Mockery as m;
+
+use \Moon\Properties\Properties\VarcharProperty;
+use \stdClass;
 
 class AggregateTest extends PHPUnit_Framework_TestCase
 {
@@ -29,10 +31,10 @@ class AggregateTest extends PHPUnit_Framework_TestCase
     public function testCreatingTableGateway()
     {
         $values = [
-            'name'   => ['moon', 'Varchar'],
-            'age'    => [999, 'Integer'],
-            'amount' => [13.2, 'Decimal'],
-            'amount2' => [13.00, 'Decimal'],
+            'name'    => ['moon', 'Moon\Properties\Properties\VarcharProperty'],
+            'age'     => [999, 'Moon\Properties\Properties\IntegerProperty'],
+            'amount'  => [13.2, 'Moon\Properties\Properties\DecimalProperty'],
+            'amount2' => [13.00, 'Moon\Properties\Properties\DecimalProperty'],
         ];
 
         $aggregate = $this->getAggregateMock();
@@ -43,7 +45,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
 
         foreach ($aggregate->getPendingProperties() as $key=>$pendingProperty) {
             $property = $pendingProperty[1];
-            $this->assertEquals($property->type, $values[$key][1]);
+            $this->assertTrue(get_class($property) === $values[$key][1]);
         }
     }
 
@@ -68,8 +70,8 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $allValues = $aggregate->all();
 
         $this->assertEquals(1, count($allValues));
-        $this->assertTrue($allValues['name'] instanceOf Property);
-        $this->assertEquals($allValues['name']->value, 'moon');
+        $this->assertTrue($allValues['name'] instanceOf VarcharProperty);
+        $this->assertEquals($allValues['name']->getValue(), 'moon');
     }
 
     public function testHas()
@@ -81,12 +83,17 @@ class AggregateTest extends PHPUnit_Framework_TestCase
 
     public function testSet()
     {
-        $fakePropertyValues           = new \stdClass;
+        $fakePropertyValues           = new stdClass;
         $fakePropertyValues->id       = 1;
         $fakePropertyValues->index_id = 1;
-        $fakePropertyValues->key      = 'dummy';
+        $fakePropertyValues->name      = 'dummy';
         $fakePropertyValues->value    = 'is dummy';
         $fakePropertyValues->type     = 'Varchar';
+
+
+        $queryBuilder = $this->getQueryBuilderInterfaceMock();
+        $queryBuilder['methods']['query']->andReturn([$fakePropertyValues]);
+        $queryBuilder['methods']['selectFirst']->andReturn($this->getFakeAggregateRecord());
 
         $tableGateway = $this->getTableGatewayMock();
         $tableGateway['methods']['findByIndexId']->andReturn([$fakePropertyValues]);
@@ -94,9 +101,10 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $tableGatewayMock = $this->getTableGatewayFactoryMock();
         $tableGatewayMock['methods']['create']->andReturn($tableGateway['mock']);
 
-        $aggregate = $this->getAggregateMock(null, null, $tableGatewayMock['mock']);
-        $aggregate->set($fakePropertyValues->key, $fakePropertyValues->value);
+        $aggregate = $this->getAggregateMock($queryBuilder['mock'], null, $tableGatewayMock['mock']);
+        $aggregate->set($fakePropertyValues->name, $fakePropertyValues->value);
         $aggregate->save();
+
 
         $dummy = $aggregate->get('dummy');
 
@@ -115,37 +123,33 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $heis = $pendingProperties["he is"][1];
 
         $this->assertEquals(count($pendingProperties), 2);
-        $this->assertTrue($im instanceof Property);
-        $this->assertTrue($heis instanceof Property);
-        $this->assertEquals($im->value, 'the bat man!');
-        $this->assertEquals($heis->value, 'the super man!');
+        $this->assertTrue($im instanceof VarcharProperty);
+        $this->assertTrue($heis instanceof VarcharProperty);
+        $this->assertEquals($im->getValue(), 'the bat man!');
+        $this->assertEquals($heis->getValue(), 'the super man!');
     }
 
     public function testDelete()
     {
-        $fakePropertyValues = new \stdClass;
+        $fakePropertyValues = new stdClass;
         $fakePropertyValues->id = 1;
         $fakePropertyValues->index_id = 1;
-        $fakePropertyValues->key = 'dummy';
+        $fakePropertyValues->name = 'dummy';
         $fakePropertyValues->value = 'is dummy';
         $fakePropertyValues->type  = 'Varchar';
 
         $tableGateway = $this->getTableGatewayMock();
-        $tableGateway['methods']['findByIndexId']->with(1)->andReturn(
-            [$fakePropertyValues],
-            [$fakePropertyValues],
-            [$fakePropertyValues],
-            [$fakePropertyValues],
-            [] // After delete('dummy')
-        );
+
+        $queryBuilder = $this->getQueryBuilderInterfaceMock();
+        $queryBuilder['methods']['query']->andReturn([$fakePropertyValues], []);
+        $queryBuilder['methods']['selectFirst']->andReturn($this->getFakeAggregateRecord());
 
         $tableGatewayMock = $this->getTableGatewayFactoryMock();
         $tableGatewayMock['methods']['create']->andReturn($tableGateway['mock']);
 
-        $aggregate = $this->getAggregateMock(null, null, $tableGatewayMock['mock']);
-        $aggregate->set($fakePropertyValues->key, $fakePropertyValues->value);
+        $aggregate = $this->getAggregateMock($queryBuilder['mock'], null, $tableGatewayMock['mock']);
+        $aggregate->set($fakePropertyValues->name, $fakePropertyValues->value);
         $aggregate->save();
-
 
         $dummy = $aggregate->get('dummy');
 
@@ -157,12 +161,16 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($aggregate->all()));
     }
 
+    public function testDestroy()
+    {
+        # code...
+    }
+
     /**
      * Mock Objects
      */
     protected function getAggregateMock($queryBuilderMock = null, $entityMock = null, $tableGatewayMock = null)
     {
-
         if (!$queryBuilderMock) {
             $_queryBuilderMock = $this->getQueryBuilderInterfaceMock();
             $_queryBuilderMock['methods']['selectFirst']->andReturn($this->getFakeAggregateRecord());
@@ -177,7 +185,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
             $tableGatewayMock = $this->getTableGatewayFactoryMock()['mock'];
         }
 
-        return new Aggregate($queryBuilderMock, $entityMock, $tableGatewayMock);
+        return new Aggregate($queryBuilderMock, $entityMock, $tableGatewayMock, new PropertyFactory);
     }
 
     protected function getEntityInterfaceMock()
@@ -203,16 +211,17 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $beginTransaction      = $queryBuilderInterface->shouldReceive('beginTransaction');
         $rollback              = $queryBuilderInterface->shouldReceive('rollback');
         $commit                = $queryBuilderInterface->shouldReceive('commit');
+        $query                 = $queryBuilderInterface->shouldReceive('query');
 
         return [
             'mock'    => $queryBuilderInterface,
-            'methods' => compact('select', 'selectFirst', 'insert', 'update', 'beginTransaction', 'rollback', 'commit')
+            'methods' => compact('select', 'selectFirst', 'insert', 'update', 'beginTransaction', 'rollback', 'commit', 'query')
         ];
     }
 
     protected function getTableGatewayFactoryMock()
     {
-        $tableGatewayFactoryInterface = m::mock('\Moon\Properties\TableGateway\TableGatewayFactory');
+        $tableGatewayFactoryInterface = m::mock('\Moon\Properties\TableGateways\TableGatewayFactory');
         $create                       = $tableGatewayFactoryInterface->shouldReceive('create');
 
         return [
@@ -223,7 +232,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
 
     protected function getTableGatewayMock()
     {
-        $mock           = m::mock('\Moon\Properties\TableGateway\TableGatewayInterface');
+        $mock           = m::mock('\Moon\Properties\TableGateways\TableGatewayInterface');
         $createOrUpdate = $mock->shouldReceive('createOrUpdate');
         $findByIndexId  = $mock->shouldReceive('findByIndexId');
         $delete         = $mock->shouldReceive('delete');
@@ -236,21 +245,29 @@ class AggregateTest extends PHPUnit_Framework_TestCase
 
     protected function getFakeAggregateRecord($id = 1, $name = 'stub', $pk = 'id', $pk_value = 1)
     {
-        $indexStub = new \stdClass;
+        $indexStub = new stdClass;
         $indexStub->id = $id;
         $indexStub->name = $name;
         $indexStub->pk = $pk;
         $indexStub->pk_value = $pk_value;
 
-        $properties = new \stdClass;
+        $properties = new stdClass;
         $stubPropertyValues           = new \stdClass;
         $stubPropertyValues->id       = 1;
         $stubPropertyValues->index_id = 1;
-        $stubPropertyValues->key      = 'name';
+        $stubPropertyValues->name      = 'name';
         $stubPropertyValues->value    = 'moon';
         $stubPropertyValues->type     = 'Varchar';
 
-        $properties->name             = new Property($stubPropertyValues) ;
+        $propertyFactory = new PropertyFactory();
+
+        $property = $propertyFactory->createWithValues($stubPropertyValues);
+        $properties->name = new stdClass;
+        $properties->name->id = $property->getId();
+        $properties->name->index_id = $property->getIndexId();
+        $properties->name->name = $property->getName();
+        $properties->name->value = $property->getValue();
+
         $indexStub->cached_properties      = json_encode($properties);
 
         return $indexStub;

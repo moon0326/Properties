@@ -1,9 +1,6 @@
 <?php namespace Moon\Properties\TableGateways;
 
 use Moon\Properties\QueryBuilderInterface;
-use Moon\Properties\IndexInterface;
-use Moon\Properties\Value;
-use Moon\Properties\Properties\PropertyInterface;
 
 class TableGatewayFactory
 {

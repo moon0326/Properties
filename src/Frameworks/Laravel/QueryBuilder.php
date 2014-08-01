@@ -1,8 +1,7 @@
 <?php namespace Moon\Properties\Frameworks\Laravel;
 
 use Moon\Properties\QueryBuilderInterface;
-
-use \DB as DB;
+use DB;
 
 class QueryBuilder implements QueryBuilderInterface
 {

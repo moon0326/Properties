@@ -8,7 +8,6 @@ use Moon\Properties\Properties\PropertyFactory;
 
 trait PropertiesTrait
 {
-
     private $_aggregate = null;
 
     public function getIdentifierName()

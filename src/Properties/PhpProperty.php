@@ -4,7 +4,11 @@ class PhpProperty extends AbstractProperty
 {
 	protected function decorateValue($value)
 	{
-		return unserialize($value);
+		if ($this->getId()) {
+			return unserialize($value);
+		} else {
+			return serialize($value);
+		}
 	}
 
 	public function getDataType()

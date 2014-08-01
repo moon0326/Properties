@@ -1,5 +1,7 @@
 <?php namespace Moon\Properties\Properties;
 
+use Moon\Properties\Exceptions\UnknownValueTypeException;
+
 class PropertyFactory
 {
 
@@ -14,7 +16,7 @@ class PropertyFactory
 
         if ($type === 'string') {
             $type = 'varchar';
-            if (strlen($value) >= 255) {
+            if (strlen($value) > 255) {
                 $type = 'text';
             }
         } elseif ($type === 'array' || $type === 'object') {

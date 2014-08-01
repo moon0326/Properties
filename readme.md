@@ -12,6 +12,7 @@ A framework agnostic package to model EAV (Entity Attribute Value) around your o
     - <a href="#">Native</a>
 - <a href="#usage">Usage</a>
 	- <a href="docs/laravel4-usage.md">Laravel 4 - General Usage</a>
+- <a href="#todos">Todos</a>
 - <a href="changelog.md">Change Log</a>
 - <a href="#license">License</a>
 
@@ -25,6 +26,9 @@ Add `moon/properties` in your "require" section of composer.json.
 
 Run `composer update` to install the package.
 
+## Todos
+
+* Make it possible to search by properties
 
 ## License
 
