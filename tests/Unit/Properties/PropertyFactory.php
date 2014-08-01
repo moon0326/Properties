@@ -64,7 +64,6 @@ class PropertyTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Helper
 	 */
-
 	protected function getProperty($value)
 	{
 		$obj = new stdClass;

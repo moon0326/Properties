@@ -10,5 +10,4 @@ interface TableGatewayInterface
     public function delete(Property $property);
     public function deleteByIndexId($indexId);
     public function findByIndexId($indexId);
-
 }

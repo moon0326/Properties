@@ -159,6 +159,10 @@ class Aggregate implements Countable
         }
     }
 
+    /**
+     * Create a new record for the aggregate index
+     * @return [type] [description]
+     */
     protected function createNewRecord()
     {
         $index = $this->queryBuilder->insert(

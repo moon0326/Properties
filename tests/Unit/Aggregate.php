@@ -14,21 +14,21 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         m::close();
     }
 
-    public function testGet()
+    public function test_get_should_return_moon()
     {
         $aggregate = $this->getAggregateMock();
         $name = $aggregate->get('name');
         $this->assertEquals($name, 'moon');
     }
 
-    public function testGettingInvalidKey()
+    public function get_get_should_throw_KeyNotFoundException()
     {
         $this->setExpectedException("\Moon\Properties\Exceptions\KeyNotFoundException");
         $aggregate = $this->getAggregateMock();
         $aggregate->get("i am not here");
     }
 
-    public function testCreatingTableGateway()
+    public function test_set_should_return_correct_Property()
     {
         $values = [
             'name'    => ['moon', 'Moon\Properties\Properties\VarcharProperty'],
@@ -49,14 +49,14 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testDoubleWithMoreThanTwoPrecisions()
+    public function test_set_should_throw_UnknownValueTypeException_with_more_than_two_precisions()
     {
         $this->setExpectedException('\Moon\Properties\Exceptions\UnknownValueTypeException');
         $aggregate = $this->getAggregateMock();
         $aggregate->set('test', 13.333);
     }
 
-    public function testKeys()
+    public function test_keys_should_return_array_of_keys()
     {
         $aggregate = $this->getAggregateMock();
         $keys = $aggregate->keys();
@@ -64,7 +64,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('name', $keys[0]);
     }
 
-    public function testAll()
+    public function test_all_should_return_all_properties()
     {
         $aggregate = $this->getAggregateMock();
         $allValues = $aggregate->all();
@@ -74,22 +74,21 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($allValues['name']->getValue(), 'moon');
     }
 
-    public function testHas()
+    public function test_has_should_return_true_with_exisiting_value()
     {
         $aggregate = $this->getAggregateMock();
         $this->assertFalse($aggregate->has('age'));
         $this->assertTrue($aggregate->has('name'));
     }
 
-    public function testSet()
+    public function test_set_should_set_value_on_Aggregate()
     {
         $fakePropertyValues           = new stdClass;
         $fakePropertyValues->id       = 1;
         $fakePropertyValues->index_id = 1;
-        $fakePropertyValues->name      = 'dummy';
+        $fakePropertyValues->name     = 'dummy';
         $fakePropertyValues->value    = 'is dummy';
         $fakePropertyValues->type     = 'Varchar';
-
 
         $queryBuilder = $this->getQueryBuilderInterfaceMock();
         $queryBuilder['methods']['query']->andReturn([$fakePropertyValues]);
@@ -105,13 +104,12 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $aggregate->set($fakePropertyValues->name, $fakePropertyValues->value);
         $aggregate->save();
 
-
         $dummy = $aggregate->get('dummy');
 
         $this->assertEquals($dummy, $fakePropertyValues->value);
     }
 
-    public function testGetPendingProperties()
+    public function test_getPendingProperties_should_return_a_property()
     {
         $aggregate = $this->getAggregateMock();
         $aggregate->set("i'm","the bat man!");
@@ -127,9 +125,11 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($heis instanceof VarcharProperty);
         $this->assertEquals($im->getValue(), 'the bat man!');
         $this->assertEquals($heis->getValue(), 'the super man!');
+        $this->assertFalse($aggregate->has("i'm"));
+        $this->assertFalse($aggregate->has("he is"));
     }
 
-    public function testDelete()
+    public function test_delete_should_remove_property_from_Aggregate()
     {
         $fakePropertyValues = new stdClass;
         $fakePropertyValues->id = 1;
@@ -159,11 +159,6 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $aggregate->save();
 
         $this->assertEquals(0, count($aggregate->all()));
-    }
-
-    public function testDestroy()
-    {
-        # code...
     }
 
     /**
@@ -251,11 +246,11 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $indexStub->pk = $pk;
         $indexStub->pk_value = $pk_value;
 
-        $properties = new stdClass;
-        $stubPropertyValues           = new \stdClass;
+        $properties                   = new stdClass;
+        $stubPropertyValues           = new stdClass;
         $stubPropertyValues->id       = 1;
         $stubPropertyValues->index_id = 1;
-        $stubPropertyValues->name      = 'name';
+        $stubPropertyValues->name     = 'name';
         $stubPropertyValues->value    = 'moon';
         $stubPropertyValues->type     = 'Varchar';
 
@@ -268,7 +263,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $properties->name->name = $property->getName();
         $properties->name->value = $property->getValue();
 
-        $indexStub->cached_properties      = json_encode($properties);
+        $indexStub->cached_properties = json_encode($properties);
 
         return $indexStub;
     }

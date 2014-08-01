@@ -2,7 +2,7 @@
 
 use Moon\Properties\Properties\PropertyInterface;
 
-class Php extends AbstractTableGateway
+class Php extends TableGateway
 {
     protected function getTableName()
     {

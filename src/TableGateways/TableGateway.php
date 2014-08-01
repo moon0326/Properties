@@ -4,7 +4,7 @@ use Moon\Properties\QueryBuilderInterface;
 use Moon\Properties\Property;
 use Moon\Properties\Properties\Property;
 
-abstract class AbstractTableGateway implements TableGatewayInterface
+abstract class TableGateway implements TableGatewayInterface
 {
     protected $queryBuilder;
 
@@ -35,9 +35,9 @@ abstract class AbstractTableGateway implements TableGatewayInterface
 
     public function update(Property $property)
     {
-        return $this->queryBuilder->update($this->getTableName(),[
-            'name'      => $property->getName(),
-            'value'    => $property->getValue()
+        return $this->queryBuilder->update($this->getTableName(), [
+            'name'  => $property->getName(),
+            'value' => $property->getValue()
         ], $property->getId());
     }
 

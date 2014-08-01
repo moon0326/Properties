@@ -14,9 +14,10 @@ class PropertyFactory
         $type = gettype($value);
 
         if ($type === 'string') {
-            $type = 'varchar';
             if (strlen($value) > 255) {
                 $type = 'text';
+            } else {
+                $type = 'varchar';
             }
         } elseif ($type === 'array' || $type === 'object') {
             $type = 'php';

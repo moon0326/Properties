@@ -1,6 +1,6 @@
 <?php namespace Moon\Properties\TableGateways;
 
-class Decimal extends AbstractTableGateway
+class Decimal extends TableGateway
 {
     protected function getTableName()
     {

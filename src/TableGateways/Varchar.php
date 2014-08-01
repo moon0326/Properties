@@ -1,6 +1,6 @@
 <?php namespace Moon\Properties\TableGateways;
 
-class Varchar extends AbstractTableGateway
+class Varchar extends TableGateway
 {
     protected function getTableName()
     {

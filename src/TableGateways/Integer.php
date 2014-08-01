@@ -1,6 +1,6 @@
 <?php namespace Moon\Properties\TableGateways;
 
-class Integer extends AbstractTableGateway
+class Integer extends TableGateway
 {
     protected function getTableName()
     {
