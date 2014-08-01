@@ -3,7 +3,8 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class InstallPropertiesInteger extends Migration {
+class InstallPropertiesInteger extends Migration
+{
 
     /**
      * Run the migrations.

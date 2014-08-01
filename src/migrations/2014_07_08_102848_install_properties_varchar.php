@@ -3,7 +3,8 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class InstallPropertiesVarchar extends Migration {
+class InstallPropertiesVarchar extends Migration
+{
 
     /**
      * Run the migrations.

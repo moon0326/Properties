@@ -23,7 +23,6 @@ trait PropertiesTrait
 
     public function getProperties()
     {
-
         $queryBuilder = new QueryBuilder();
 
         return new Aggregate(
@@ -31,6 +30,5 @@ trait PropertiesTrait
             $this,
             new TableGatewayFactory()
         );
-
     }
 }

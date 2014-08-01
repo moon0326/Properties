@@ -2,7 +2,7 @@
 
 use Moon\Properties\QueryBuilderInterface;
 use Moon\Properties\Property;
-use Moon\Properties\Properties\PropertyInterface;
+use Moon\Properties\Properties\Property;
 
 abstract class AbstractTableGateway implements TableGatewayInterface
 {
@@ -15,7 +15,7 @@ abstract class AbstractTableGateway implements TableGatewayInterface
         $this->queryBuilder = $queryBuilder;
     }
 
-    public function create(PropertyInterface $property)
+    public function create(Property $property)
     {
         return $this->queryBuilder->insert($this->getTableName(), [
             'index_id' => $property->getIndexId(),
@@ -24,7 +24,7 @@ abstract class AbstractTableGateway implements TableGatewayInterface
         ]);
     }
 
-    public function createOrUpdate(PropertyInterface $property)
+    public function createOrUpdate(Property $property)
     {
         if ($property->getId()) {
             return $this->update($property);
@@ -33,7 +33,7 @@ abstract class AbstractTableGateway implements TableGatewayInterface
         return $this->create($property);
     }
 
-    public function update(PropertyInterface $property)
+    public function update(Property $property)
     {
         return $this->queryBuilder->update($this->getTableName(),[
             'name'      => $property->getName(),
@@ -41,7 +41,7 @@ abstract class AbstractTableGateway implements TableGatewayInterface
         ], $property->getId());
     }
 
-    public function delete(PropertyInterface $property)
+    public function delete(Property $property)
     {
         return $this->queryBuilder->delete($this->getTableName(), ['id'=>$property->getId()]);
     }

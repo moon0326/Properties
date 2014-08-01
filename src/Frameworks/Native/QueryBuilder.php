@@ -9,7 +9,7 @@ class QueryBuilder implements QueryBuilderInterface
 {
     protected $conn;
 
-    public function __construct($config)
+    public function __construct(array $config)
     {
         $this->conn = new PDO(
             'mysql:host='.$config['host'].';dbname='.$config['database'],
@@ -32,7 +32,6 @@ class QueryBuilder implements QueryBuilderInterface
         }
 
         return implode($implodeSeparator,$where);
-
     }
 
     public function select($table, array $wheres = [])
@@ -69,13 +68,11 @@ class QueryBuilder implements QueryBuilderInterface
 
         $valuesPlaceholder = '(' . implode(',',$valuesPlaceholder) . ')';
 
-
         $query = $this->conn->prepare("insert into ". $table . ' ' . $colsStr . ' values '.$valuesPlaceholder);
 
         $result = $query->execute(array_values($values));
 
         $id = $this->conn->lastInsertId();
-
 
         return $id;
     }
@@ -87,7 +84,6 @@ class QueryBuilder implements QueryBuilderInterface
         if ($record) {
             return $record[0];
         }
-
 
         return $record;
     }

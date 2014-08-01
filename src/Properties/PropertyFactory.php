@@ -4,7 +4,6 @@ use Moon\Properties\Exceptions\UnknownValueTypeException;
 
 class PropertyFactory
 {
-
     /**
      * Determines a data type for a given value
      * @param  mixed $value

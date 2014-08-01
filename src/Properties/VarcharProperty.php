@@ -1,6 +1,6 @@
 <?php namespace Moon\Properties\Properties;
 
-class VarcharProperty extends AbstractProperty
+class VarcharProperty extends Property
 {
 	protected function decorateValue($value)
 	{

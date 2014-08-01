@@ -1,6 +1,6 @@
 <?php namespace Moon\Properties\Properties;
 
-class IntegerProperty extends AbstractProperty
+class IntegerProperty extends Property
 {
 	protected function decorateValue($value)
 	{

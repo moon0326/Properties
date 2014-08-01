@@ -1,6 +1,6 @@
 <?php namespace Moon\Properties\Properties;
 
-class DecimalProperty extends AbstractProperty
+class DecimalProperty extends Property
 {
 	protected function decorateValue($value)
 	{

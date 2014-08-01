@@ -12,7 +12,6 @@ use Countable;
  */
 class Aggregate implements Countable
 {
-
     /**
      * Indicates whether a record was loaded from properties_aggregate or not.
      * As of now, this value is only useful for checking the state of Aggregate object when destroy() is called.
@@ -364,19 +363,6 @@ class Aggregate implements Countable
                 $index->{$property->name} = $property;
             }
         }
-
-
-        // foreach ($this->supportedDataTypes as $type) {
-        //     $tableGateway = $this->tableGatewayFactory->create($this->queryBuilder, $type);
-        //     foreach ($tableGateway->findByIndexId($this->id) as $property) {
-        //         $property->type = $type;
-        //         $index->{$property->name} = $property;
-        //     }
-        // }
-
-        // if (!count((array) $index)) {
-        //     $index = null;
-        // }
 
         $this->cachedProperties = $index;
         $this->populateCachedProperties();

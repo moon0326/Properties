@@ -1,13 +1,14 @@
 <?php namespace Moon\Properties\Properties;
 
-abstract class AbstractProperty implements PropertyInterface
+abstract class Property
 {
-	protected $id;
-	protected $index_id;
-	protected $name;
-	protected $value;
+	private $id;
+	private $index_id;
+	private $name;
+	private $value;
 
 	abstract protected function decorateValue($mixed);
+	abstract public function getDataType();
 
 	public function __construct($values)
 	{
