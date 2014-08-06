@@ -40,7 +40,6 @@ class Base extends \PHPUnit_Framework_TestCase
 			'password' => '1234'
         ]);
 
-
         $this->aggregate = new Aggregate(
             $this->queryBuilder,
             new EntityTest(),

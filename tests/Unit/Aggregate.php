@@ -21,7 +21,7 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($name, 'moon');
     }
 
-    public function get_get_should_throw_KeyNotFoundException()
+    public function test_get_should_throw_KeyNotFoundException()
     {
         $this->setExpectedException("\Moon\Properties\Exceptions\KeyNotFoundException");
         $aggregate = $this->getAggregateMock();

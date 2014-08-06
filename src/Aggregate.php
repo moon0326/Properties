@@ -143,7 +143,7 @@ class Aggregate implements Countable
     }
 
     /**
-     * Decode cached json and generate Value objects from it
+     * Decode cached json and generate Property objects from it
      * @return Void
      */
     protected function populateCachedProperties()
@@ -161,7 +161,6 @@ class Aggregate implements Countable
 
     /**
      * Create a new record for the aggregate index
-     * @return [type] [description]
      */
     protected function createNewRecord()
     {
@@ -183,13 +182,14 @@ class Aggregate implements Countable
      * Add a temporary Property object to the $pendingProperties
      * @return Void
      */
-    protected function addPendingProperty($name, $value, $operation, $id = null)
+    protected function addPendingProperty($name, $value, $operation, $id = null, $overrideType = null)
     {
         $values           = new stdClass;
         $values->name     = $name;
         $values->value    = $value;
         $values->id       = $id;
         $values->index_id = $this->id;
+        $values->type     = $overrideType;
 
         $property                       = $this->propertyFactory->createWithValues($values);
         $this->pendingProperties[$name] = [$operation, $property];
@@ -214,12 +214,19 @@ class Aggregate implements Countable
      * Sets a new Property or updates an existing Property
      * @return Aggregate
      */
-    public function set($key, $value)
+    public function set($key, $value, $overrideType = null)
     {
         if ($this->has($key)) {
             $this->update($key, $value, 'update', $this->get($key, true)->getId());
         } else {
-            $this->addPendingProperty($key, $value, 'create');
+
+            if ($overrideType) {
+                if (!in_array($overrideType, $this->supportedDataTypes)) {
+                    throw new UnknownValueTypeException($overrideType . ' is not a supported type. Please try one of ' . implode(', ', $this->supportedDataTypes));
+                }
+            }
+
+            $this->addPendingProperty($key, $value, 'create', null, $overrideType);
         }
 
         return $this;

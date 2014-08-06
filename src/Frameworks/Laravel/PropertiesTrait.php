@@ -12,7 +12,7 @@ trait PropertiesTrait
 
     public function getIdentifierName()
     {
-        return 'id';
+        $this->getKeyName();
     }
 
     public function getIdentifier()
@@ -22,7 +22,7 @@ trait PropertiesTrait
 
     public function getName()
     {
-        return $this->table;
+        return $this->getTable();
     }
 
     public function getProperties()

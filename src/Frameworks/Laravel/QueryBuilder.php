@@ -75,5 +75,4 @@ class QueryBuilder implements QueryBuilderInterface
     {
         DB::commit();
     }
-
 }

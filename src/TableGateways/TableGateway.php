@@ -1,7 +1,6 @@
 <?php namespace Moon\Properties\TableGateways;
 
 use Moon\Properties\QueryBuilderInterface;
-use Moon\Properties\Property;
 use Moon\Properties\Properties\Property;
 
 abstract class TableGateway implements TableGatewayInterface
