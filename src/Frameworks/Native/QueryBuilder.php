@@ -9,13 +9,9 @@ class QueryBuilder implements QueryBuilderInterface
 {
     protected $conn;
 
-    public function __construct(array $config)
+    public function __construct(PDO $conn)
     {
-        $this->conn = new PDO(
-            'mysql:host='.$config['host'].';dbname='.$config['database'],
-            $config['user'],
-            $config['password']
-        );
+        $this->conn = $conn;
     }
 
     public function getConnection()

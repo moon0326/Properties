@@ -7,8 +7,6 @@ $user = User::find(1);
 $properties = $user->getProperties();
 $properties->set('name', 'John Doe');
 $properties->save();
-
-
 ```
 
 ### Retriving a Value

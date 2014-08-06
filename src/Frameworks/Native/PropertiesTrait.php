@@ -23,7 +23,7 @@ trait PropertiesTrait
 
     public function getProperties()
     {
-        $queryBuilder = new QueryBuilder();
+        $queryBuilder = new QueryBuilder($this->getDBConnection());
 
         return new Aggregate(
             $queryBuilder,
