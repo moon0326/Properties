@@ -1,7 +1,6 @@
 # Properties
 A framework agnostic package to model EAV (Entity Attribute Value) around your objects.
 
-**Warning: This is a pre-release. DO NOT install.**
 ## Table of Contents
 
 - <a href="#installation">Installation</a>
