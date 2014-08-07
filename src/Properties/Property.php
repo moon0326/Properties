@@ -10,7 +10,7 @@ abstract class Property
 	abstract protected function decorateValue($mixed);
 	abstract public function getDataType();
 
-	public function __construct($values)
+	public function __construct(\stdClass $values)
 	{
 		if (isset($values->id)) {
 			$this->id       = $values->id;

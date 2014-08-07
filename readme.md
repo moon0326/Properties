@@ -32,4 +32,4 @@ Run `composer update` to install the package.
 
 ## License
 
-Properties is released under the [DBAD](http://www.dbad-license.org) license.
+Properties is released under the [MIT](http://opensource.org/licenses/MIT) license.

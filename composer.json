@@ -1,6 +1,7 @@
 {
     "name": "moon/properties",
-    "license": "DBAD",
+    "descript": "Framework agnostic package to model EAV around your existing objects.",
+    "license": "MIT",
     "authors": [
         {
             "name": "Moon",
