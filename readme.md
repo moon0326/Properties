@@ -7,13 +7,9 @@ A framework agnostic package to model EAV (Entity Attribute Value) around your o
 - <a href="#installation">Installation</a>
     - <a href="#composer">Composer</a>
     - <a href="docs/laravel4-installation.md">Laravel 4</a>
-    - <a href="#kohana">Kohana 3</a>
-    - <a href="#codeigniter">Codeigniter</a>
 - <a href="#usage">Usage</a>
 	- <a href="docs/laravel4-usage.md">Laravel 4 - General Usage</a>
-	- <a href="docs/native-usage.md">Native - General Usage</a>
 - <a href="#todos">Todos</a>
-- <a href="changelog.md">Change Log</a>
 - <a href="#license">License</a>
 
 ## Composer
