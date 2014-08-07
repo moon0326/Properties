@@ -21,7 +21,7 @@ A framework agnostic package to model EAV (Entity Attribute Value) around your o
 Add `moon/properties` in your "require" section of composer.json.
 
 ```json
-"moon/properties": "0.2"
+"moon/properties": "1.0"
 ```
 
 Run `composer update` to install the package.

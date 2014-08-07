@@ -1,8 +1,8 @@
 <?php namespace Moon\Properties\Frameworks\Kohana;
 
 use Moon\Properties\QueryBuilderInterface;
-use \DB as DB;
-use \Database as Database;
+use DB;
+use Database;
 
 class QueryBuilder implements QueryBuilderInterface
 {
@@ -23,7 +23,6 @@ class QueryBuilder implements QueryBuilderInterface
         if ($count === 1) {
             return [$record->current()];
         }
-
 
         return $record;
     }

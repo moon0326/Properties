@@ -2,11 +2,11 @@
 
 interface QueryBuilderInterface
 {
-	/**
-	 * @param  string 	  $table  name of the table
-	 * @param  array  	  $wheres an array of key/value where clauses
-	 * @return Array|NULL should return an array ob rows in stdClass format or NULL if not found
-	 */
+    /**
+     * @param  string 	  $table  name of the table
+     * @param  array  	  $wheres an array of key/value where clauses
+     * @return Array|NULL should return an array ob rows in stdClass format or NULL if not found
+     */
     public function select($table, array $wheres);
 
     /**

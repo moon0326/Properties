@@ -1,6 +1,6 @@
 {
     "name": "moon/properties",
-    "descript": "Framework agnostic package to model EAV around your existing objects.",
+    "description": "Framework agnostic package to model EAV around your existing objects.",
     "license": "MIT",
     "authors": [
         {

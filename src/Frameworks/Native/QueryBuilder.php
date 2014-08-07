@@ -26,22 +26,22 @@ class QueryBuilder implements QueryBuilderInterface
             $where[] = '`'.$key.'`=?';
         }
 
-        return implode($implodeSeparator,$where);
+        return implode($implodeSeparator, $where);
     }
 
     public function select($table, array $wheres = [])
     {
         $queryStr = 'select * from :table where ' . $this->createWheres($wheres);
-        $sql = $this->conn->prepare($queryStr);
-        $sql->bindValue(':table', $table, PDO::PARAM_STR);
+        $query = $this->conn->prepare($queryStr);
+        $query->bindValue(':table', $table, PDO::PARAM_STR);
 
-        $execute = $sql->execute(array_values($wheres));
+        $execute = $query->execute(array_values($wheres));
 
         if (!$execute) {
             return null;
         }
 
-        $rows = $sql->fetchAll(PDO::FETCH_CLASS, 'stdClass');
+        $rows = $query->fetchAll(PDO::FETCH_CLASS, 'stdClass');
 
         if (count($rows)) {
             return $rows;
@@ -65,8 +65,8 @@ class QueryBuilder implements QueryBuilderInterface
 
         $valuesPlaceholder = '(' . implode(',',$valuesPlaceholder) . ')';
 
-        $query = $this->conn->prepare("insert into ". $table . ' ' . $colsStr . ' values '.$valuesPlaceholder);
-
+        $query = $this->conn->prepare("insert into :table ". $colsStr . ' values '.$valuesPlaceholder);
+        $query->bindValue(':table', $table, PDO::PARAM_STR);
         $query->execute(array_values($values));
 
         $id = $this->conn->lastInsertId();
