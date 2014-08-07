@@ -2,7 +2,6 @@
 
 use Moon\Properties\QueryBuilderInterface;
 
-use \DB as DB;
 use \PDO;
 
 class QueryBuilder implements QueryBuilderInterface
@@ -66,7 +65,7 @@ class QueryBuilder implements QueryBuilderInterface
 
         $query = $this->conn->prepare("insert into ". $table . ' ' . $colsStr . ' values '.$valuesPlaceholder);
 
-        $result = $query->execute(array_values($values));
+        $query->execute(array_values($values));
 
         $id = $this->conn->lastInsertId();
 

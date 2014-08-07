@@ -1,6 +1,7 @@
 <?php namespace Moon\Properties;
 
 use Moon\Properties\Exceptions\KeyNotFoundException;
+use Moon\Properties\Exceptions\UnknownValueTypeException;
 use Moon\Properties\TableGateways\TableGatewayFactory;
 use Moon\Properties\Properties\PropertyFactory;
 use stdClass;
@@ -17,7 +18,6 @@ class Aggregate implements Countable
      * As of now, this value is only useful for checking the state of Aggregate object when destroy() is called.
      * When a user tries to call set, update, or delete methods after calling destroy(),
      * has($key) checks to see if $loaded is set to true. Otherwise, DomainException exception will be thrown
-     * @todo  find a better way of handling the state after destory()
      * @var boolean
      */
     protected $loaded = false;
@@ -331,10 +331,10 @@ class Aggregate implements Countable
                 switch ($operation) {
                     case 'update':
                     case 'create':
-                        $result = $tableGateway->createOrUpdate($property);
+                        $tableGateway->createOrUpdate($property);
                         break;
                     case 'delete':
-                        $result = $tableGateway->delete($property);
+                        $tableGateway->delete($property);
                         break;
                 }
             }

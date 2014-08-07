@@ -38,7 +38,7 @@ class PropertyFactory
         return $type;
     }
 
-	public function createWithValues($values)
+	public function createWithValues(\stdclass $values)
 	{
         if (isset($values->type)) {
             $type = $values->type;
