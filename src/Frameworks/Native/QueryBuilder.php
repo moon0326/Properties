@@ -1,116 +1,120 @@
-// <?php namespace Moon\Properties\Frameworks\Native;
+<?php namespace Moon\Properties\Frameworks\Native;
 
-// use Moon\Properties\QueryBuilderInterface;
+use Moon\Properties\QueryBuilderInterface;
 
-// use \PDO;
+use \PDO;
 
-// class QueryBuilder implements QueryBuilderInterface
-// {
-//     protected $conn;
+class QueryBuilder implements QueryBuilderInterface
+{
+    protected $conn;
 
-//     public function __construct(PDO $conn)
-//     {
-//         $this->conn = $conn;
-//     }
+    public function __construct(PDO $conn)
+    {
+        $this->conn = $conn;
+    }
 
-//     public function getConnection()
-//     {
-//         return $this->conn;
-//     }
+    public function getConnection()
+    {
+        return $this->conn;
+    }
 
-//     protected function createWheres(array $wheres = [], $implodeSeparator = ' and ')
-//     {
-//         $where = [];
+    protected function createWheres(array $wheres = [], $implodeSeparator = ' and ')
+    {
+        $where = [];
 
-//         foreach ($wheres as $key=>$value) {
-//             $where[] = '`'.$key.'`=?';
-//         }
+        foreach ($wheres as $key=>$value) {
+            $where[] = '`'.$key.'`=?';
+        }
 
-//         return implode($implodeSeparator,$where);
-//     }
+        return implode($implodeSeparator,$where);
+    }
 
-//     public function select($table, array $wheres = [])
-//     {
-//         $queryStr = 'select * from '. $table . ' where '. $this->createWheres($wheres);
-//         $sql = $this->conn->prepare($queryStr);
-//         $execute = $sql->execute(array_values($wheres));
+    public function select($table, array $wheres = [])
+    {
+        $queryStr = 'select * from :table where ' . $this->createWheres($wheres);
+        $sql = $this->conn->prepare($queryStr);
+        $sql->bindValue(':table', $table, PDO::PARAM_STR);
 
-//         if (!$execute) {
-//             return null;
-//         }
+        $execute = $sql->execute(array_values($wheres));
 
-//         $rows = $sql->fetchAll(PDO::FETCH_CLASS, 'stdClass');
+        if (!$execute) {
+            return null;
+        }
 
-//         if (count($rows)) {
-//             return $rows;
-//         }
+        $rows = $sql->fetchAll(PDO::FETCH_CLASS, 'stdClass');
 
-//         return null;
-//     }
+        if (count($rows)) {
+            return $rows;
+        }
 
-//     public function insert($table, array $values)
-//     {
-//         $cols = array_map(function($value) {
-//             return '`'.$value.'`';
-//         }, array_keys($values));
+        return null;
+    }
 
-//         $colsStr = '(' . implode(',', $cols) . ')';
-//         $valuesPlaceholder = [];
+    public function insert($table, array $values)
+    {
+        $cols = array_map(function($value) {
+            return '`'.$value.'`';
+        }, array_keys($values));
 
-//         foreach ($cols as $col) {
-//             $valuesPlaceholder[] = '?';
-//         }
+        $colsStr = '(' . implode(',', $cols) . ')';
+        $valuesPlaceholder = [];
 
-//         $valuesPlaceholder = '(' . implode(',',$valuesPlaceholder) . ')';
+        foreach ($cols as $col) {
+            $valuesPlaceholder[] = '?';
+        }
 
-//         $query = $this->conn->prepare("insert into ". $table . ' ' . $colsStr . ' values '.$valuesPlaceholder);
+        $valuesPlaceholder = '(' . implode(',',$valuesPlaceholder) . ')';
 
-//         $query->execute(array_values($values));
+        $query = $this->conn->prepare("insert into ". $table . ' ' . $colsStr . ' values '.$valuesPlaceholder);
 
-//         $id = $this->conn->lastInsertId();
+        $query->execute(array_values($values));
 
-//         return $id;
-//     }
+        $id = $this->conn->lastInsertId();
 
-//     public function selectFirst($table, array $wheres)
-//     {
-//         $record = $this->select($table, $wheres);
+        return $id;
+    }
 
-//         if ($record) {
-//             return $record[0];
-//         }
+    public function selectFirst($table, array $wheres)
+    {
+        $record = $this->select($table, $wheres);
 
-//         return $record;
-//     }
+        if ($record) {
+            return $record[0];
+        }
 
-//     public function update($table, array $values, $id)
-//     {
-//         $queryStr = 'update ' . $table . ' set ' . $this->createWheres($values,',') . ' where id = ' . $id;
-//         $query = $this->conn->prepare($queryStr);
+        return $record;
+    }
 
-//         return $query->execute(array_values($values));
-//     }
+    public function update($table, array $values, $id)
+    {
+        $queryStr = 'update :table set ' . $this->createWheres($values,',') . ' where id = ' . $id;
+        $query = $this->conn->prepare($queryStr);
+        $query->bindValue(':table', $table, PDO::PARAM_STR);
 
-//     public function delete($table, array $values)
-//     {
-//         $queryStr = 'delete from ' . $table . ' where ' . $this->createWheres($values,',');
-//         $query = $this->conn->prepare($queryStr);
+        return $query->execute(array_values($values));
+    }
 
-//         return $query->execute(array_values($values));
-//     }
+    public function delete($table, array $values)
+    {
+        $queryStr = 'delete from :table where ' . $this->createWheres($values,',');
+        $query = $this->conn->prepare($queryStr);
+        $query->bindValue(':table', $table, PDO::PARAM_STR);
 
-//     public function beginTransaction()
-//     {
-//         $this->conn->beginTransaction();
-//     }
+        return $query->execute(array_values($values));
+    }
 
-//     public function rollback()
-//     {
-//         $this->conn->rollback();
-//     }
+    public function beginTransaction()
+    {
+        $this->conn->beginTransaction();
+    }
 
-//     public function commit()
-//     {
-//         $this->conn->commit();
-//     }
-// }
+    public function rollback()
+    {
+        $this->conn->rollback();
+    }
+
+    public function commit()
+    {
+        $this->conn->commit();
+    }
+}
