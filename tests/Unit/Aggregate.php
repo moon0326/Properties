@@ -14,21 +14,37 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         m::close();
     }
 
-    public function test_get_should_return_moon()
+    /**
+     * @test
+     */
+    public function it_should_return_moon()
     {
         $aggregate = $this->getAggregateMock();
         $name = $aggregate->get('name');
         $this->assertEquals($name, 'moon');
     }
 
-    public function test_get_should_throw_KeyNotFoundException()
+    /**
+     * @test
+     */
+    public function it_should_throw_KeyNotFoundException_when_retrieving_unset_key()
     {
         $this->setExpectedException("\Moon\Properties\Exceptions\KeyNotFoundException");
         $aggregate = $this->getAggregateMock();
         $aggregate->get("i am not here");
     }
 
-    public function test_set_should_return_correct_Property()
+    /**
+     * @test
+     * After setting a value, the value becomes a pending property until we call save() method
+     * Check to see if those pending properties have a correct Propety object
+     * Expected Objects
+     * | Type    | Object          |
+     * | Varchar | VarcharProperty |
+     * | Integer | IntegerProperty |
+     * | Decimal | DecimalProperty |
+     */
+    public function it_should_return_correct_Property_object_for_each_data_types()
     {
         $values = [
             'name'    => ['moon', 'Moon\Properties\Properties\VarcharProperty'],
@@ -49,14 +65,22 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function test_set_should_throw_UnknownValueTypeException_with_more_than_two_precisions()
+    /**
+     * @test
+     * We don't support numbers with more than two previsions
+     * Make sure we throw an exception
+     */
+    public function it_should_throw_UnknownValueTypeException_with_more_than_two_precisions()
     {
         $this->setExpectedException('\Moon\Properties\Exceptions\UnknownValueTypeException');
         $aggregate = $this->getAggregateMock();
         $aggregate->set('test', 13.333);
     }
 
-    public function test_keys_should_return_array_of_keys()
+    /**
+     * @test
+     */
+    public function it_should_return_array_of_keys_when_calling_keys_method()
     {
         $aggregate = $this->getAggregateMock();
         $keys = $aggregate->keys();
@@ -64,7 +88,10 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('name', $keys[0]);
     }
 
-    public function test_all_should_return_all_properties()
+    /**
+     * @test
+     */
+    public function it_should_return_all_properties()
     {
         $aggregate = $this->getAggregateMock();
         $allValues = $aggregate->all();
@@ -74,14 +101,17 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($allValues['name']->getValue(), 'moon');
     }
 
-    public function test_has_should_return_true_with_exisiting_value()
+    /**
+     * @test
+     */
+    public function it_should_return_true_with_exisiting_value()
     {
         $aggregate = $this->getAggregateMock();
         $this->assertFalse($aggregate->has('age'));
         $this->assertTrue($aggregate->has('name'));
     }
 
-    public function test_set_should_set_value_on_Aggregate()
+    public function it_should_set_value_on_Aggregate()
     {
         $fakePropertyValues           = new stdClass;
         $fakePropertyValues->id       = 1;
@@ -109,7 +139,10 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($dummy, $fakePropertyValues->value);
     }
 
-    public function test_getPendingProperties_should_return_a_property()
+    /**
+     * @test
+     */
+    public function it_should_return_an_instance_of_Property()
     {
         $aggregate = $this->getAggregateMock();
         $aggregate->set("i'm","the bat man!");
@@ -129,7 +162,10 @@ class AggregateTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($aggregate->has("he is"));
     }
 
-    public function test_delete_should_remove_property_from_Aggregate()
+    /**
+     * @test
+     */
+    public function it_should_remove_property_from_Aggregate()
     {
         $fakePropertyValues = new stdClass;
         $fakePropertyValues->id = 1;
